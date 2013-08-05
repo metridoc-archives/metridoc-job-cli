@@ -3,6 +3,10 @@ apply plugin: "application"
 
 mainClassName = "metridoc.cli.MetridocMain"
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.6'
+}
+
 repositories {
     mavenCentral()
     mavenLocal()
