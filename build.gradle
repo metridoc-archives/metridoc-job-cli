@@ -1,0 +1,21 @@
+apply plugin: "groovy"
+apply plugin: "application"
+
+mainClassName = "metridoc.cli.MetridocMain"
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+        url "http://jcenter.bintray.com/"
+    }
+    maven {
+        url "http://dl.bintray.com/upennlib/metridoc"
+    }
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.0.8'
+    compile 'com.github.metridoc:metridoc-tool-gorm:0.1-SNAPSHOT'
+    testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+}
