@@ -2,6 +2,8 @@ apply plugin: "groovy"
 apply plugin: "application"
 
 mainClassName = "metridoc.cli.MetridocMain"
+applicationName = "mdoc"
+project.version = "0.1-SNAPSHOT"
 
 task wrapper(type: Wrapper) {
     gradleVersion = '1.6'
