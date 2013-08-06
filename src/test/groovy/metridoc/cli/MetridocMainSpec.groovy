@@ -1,0 +1,75 @@
+package metridoc.cli
+
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
+import spock.lang.Specification
+
+/**
+ * Created with IntelliJ IDEA on 8/5/13
+ * @author Tommy Barker
+ */
+class MetridocMainSpec extends Specification {
+
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder()
+
+    void "test running a script"() {
+        given:
+        def args = ["src/test/testJobs/script/simpleScript.groovy"]
+        def binding = new Binding()
+        binding.args = args
+        def main = new MetridocMain(binding: binding)
+
+        when:
+        def result = main.run()
+
+        then:
+        "simpleScript ran" == result
+        noExceptionThrown()
+    }
+
+    void "test running a simple job"() {
+        given:
+        def args = ["src/test/testJobs/simpleJob"]
+        def binding = new Binding()
+        binding.args = args
+        def main = new MetridocMain(binding: binding)
+
+        when:
+        def result = main.run()
+
+        then:
+        noExceptionThrown()
+        "foo ran" == result
+    }
+
+    void "test running a complex job"() {
+        given:
+        def args = ["foo"]
+        def binding = new Binding()
+        binding.args = args
+        def main = new MetridocMain(binding: binding, jobPath: "src/test/testJobs/complexJob")
+
+        when:
+        def result = main.run()
+
+        then:
+        noExceptionThrown()
+        "complex foo project ran" == result
+    }
+
+    void "test installing and running a job"() {
+        given:
+        def args = ["install", new File("src/test/testJobs/metridoc-job-bar-0.1.zip").toURI().toURL().toString()]
+        def binding = new Binding(args:args)
+        def main = new MetridocMain(binding: binding, jobPath: folder.getRoot().toString())
+
+        when:
+        main.run()
+
+        then:
+        noExceptionThrown()
+        folder.root.listFiles().find {it.name == "metridoc-job-bar-0.1"}
+        1 == folder.root.listFiles().size()
+    }
+}

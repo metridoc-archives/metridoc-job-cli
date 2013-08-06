@@ -1,0 +1,28 @@
+apply plugin: "groovy"
+apply plugin: "application"
+
+mainClassName = "metridoc.cli.MetridocMain"
+applicationName = "mdoc"
+project.version = "0.1-SNAPSHOT"
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.6'
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+        url "http://jcenter.bintray.com/"
+    }
+    maven {
+        url "http://dl.bintray.com/upennlib/metridoc"
+    }
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.0.8',
+            'com.github.metridoc:metridoc-tool-gorm:0.1-SNAPSHOT',
+            'org.apache.commons:commons-compress:1.5'
+    testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+}
