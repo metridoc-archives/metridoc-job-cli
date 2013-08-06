@@ -19,7 +19,8 @@ repositories {
 }
 
 dependencies {
-    compile 'org.codehaus.groovy:groovy-all:2.0.8'
-    compile 'com.github.metridoc:metridoc-tool-gorm:0.1-SNAPSHOT'
+    compile 'org.codehaus.groovy:groovy-all:2.0.8',
+            'com.github.metridoc:metridoc-tool-gorm:0.1-SNAPSHOT',
+            'org.apache.commons:commons-compress:1.5'
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 }
