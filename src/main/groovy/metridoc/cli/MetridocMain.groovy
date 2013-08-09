@@ -2,7 +2,6 @@ package metridoc.cli
 
 import groovy.io.FileType
 import metridoc.utils.ArchiveMethods
-import org.apache.commons.lang.SystemUtils
 
 /**
  * Created with IntelliJ IDEA on 8/5/13
@@ -10,13 +9,20 @@ import org.apache.commons.lang.SystemUtils
  */
 class MetridocMain extends Script {
 
-    String jobPath = "${SystemUtils.USER_HOME}/.metridoc/jobs"
-    def home = SystemUtils.USER_HOME
+    def home = System.getProperty("user.home")
+    String jobPath = "$home/.metridoc/jobs"
     def libDirectories = ["$home/.groovy/lib", "$home/.grails/drivers", "$home/.metridoc/lib", "$home/.metridoc/drivers"]
+
+    public static void main(String[] args) {
+        def binding = new Binding(args: args)
+        new MetridocMain(binding: binding).run()
+    }
 
     @SuppressWarnings("GroovyAccessibility")
     @Override
     def run() {
+        new InstallMdoc(binding:binding).run()
+        return
 
         String[] args = binding.args
         assert args: "at lest one argument is required to declare what job to run"

@@ -1,12 +1,34 @@
 apply plugin: "groovy"
 apply plugin: "application"
+apply plugin: "metridoc"
+apply plugin: "propdeps"
+apply plugin: "propdeps-maven"
+apply plugin: 'propdeps-idea'
+apply plugin: 'propdeps-eclipse'
 
+group = "com.github.metridoc-job-cli"
 mainClassName = "metridoc.cli.MetridocMain"
 applicationName = "mdoc"
-project.version = "0.1-SNAPSHOT"
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '1.6'
+sourceCompatibility = "1.6"
+targetCompatibility = "1.6"
+archivesBaseName = "metridoc-job-cli"
+version = "0.1-SNAPSHOT"
+
+buildscript {
+    repositories {
+        maven { url "http://dl.bintray.com/upennlib/metridoc" }
+        maven { url 'http://repo.springsource.org/plugins-release' }
+    }
+
+    dependencies {
+        classpath 'com.github.metridoc:metridoc-gradle-plugin:0.1.3',
+                'org.springframework.build.gradle:propdeps-plugin:0.0.1'
+    }
+}
+
+project.ext {
+    bintrayRepo = "http://dl.bintray.com/upennlib/metridoc-distributions"
 }
 
 repositories {
@@ -21,8 +43,36 @@ repositories {
 }
 
 dependencies {
-    compile 'org.codehaus.groovy:groovy-all:2.0.8',
-            'com.github.metridoc:metridoc-tool-gorm:0.1-SNAPSHOT',
-            'org.apache.commons:commons-compress:1.5'
+    compile 'org.codehaus.groovy:groovy-all:2.0.8', 'org.apache.commons:commons-compress:1.5'
+    provided 'com.github.metridoc:metridoc-tool-gorm:0.1'
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+}
+
+task uploadDist(type: metridoc.gradle.GenericBintrayUpload, dependsOn: "distZip") {
+    artifactFile = distZip.archivePath
+    bintrayRepo = "https://api.bintray.com/content/upennlib/metridoc-distributions/${archivesBaseName}/$version/${distZip.archiveName}"
+}
+
+task addVersion << {
+    def resourceDir = new File("$projectDir/src/main/resources")
+    if(!resourceDir.exists()) {
+        resourceDir.mkdir()
+    }
+    def versionFile = new File("$projectDir/src/main/resources/MDOC_VERSION")
+    if (versionFile.exists()) {
+        versionFile.delete()
+    }
+    versionFile.createNewFile()
+    versionFile.write(project.version, "utf-8")
+}
+
+compileGroovy.dependsOn addVersion
+
+task copyDependenciesToLib(type: Copy) {
+    def destination = "$buildDir/install/$applicationName/lib"
+    if(project.hasProperty("dependenciesDestination")) {
+        destination = project.dependenciesDestination
+    }
+    into destination
+    from configurations.provided
 }
