@@ -52,7 +52,7 @@ class ArchiveMethods {
                 }
 
                 unzippedFiles << file
-                updateFilePermissions(file, entry.unixMode)
+                //updateFilePermissions(file, entry.unixMode)
             }
         }
 

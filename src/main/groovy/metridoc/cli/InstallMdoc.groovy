@@ -1,5 +1,7 @@
 package metridoc.cli
 
+import metridoc.utils.ArchiveMethods
+
 import java.util.concurrent.CountDownLatch
 
 def classpath = System.getProperty("java.class.path")
@@ -9,13 +11,13 @@ destination.eachFile {
     currentLibs << it
 }
 def slash = System.getProperty("file.separator")
-def metridocVersion = this.getClass().classLoader.getResourceAsStream("MDOC_VERSION")
+def metridocVersion = this.getClass().classLoader.getResourceAsStream("MDOC_VERSION").getText("utf-8")
 def home = System.getProperty("user.home")
 def mdocHome = "${home}${slash}.metridoc"
 def os = System.getProperty("os.name")
 boolean windows = os.contains("indows") //ignore case
 
-def sourceDirectory = "${mdocHome}${slash}cli${slash}source${slash}metridoc-job-cli-${metridocVersion}"
+String sourceDirectory = "${mdocHome}${slash}cli${slash}source${slash}metridoc-job-cli-${metridocVersion}"
 
 binding.args.each {
     def m = it =~ /^-?-sourceDirectory=(.+)$/
@@ -23,14 +25,6 @@ binding.args.each {
         sourceDirectory = m.group(1)
     }
 }
-
-sourceDirectoryDir = new File(sourceDirectory)
-//if(!sourceDirectoryDir.exists()) {
-//    sourceDirectoryDir.mkdirs()
-//    new URL("https://github.com/metridoc/metridoc-job-cli/releases/tag/$metridocVersion").withInputStream {inputStream ->
-//
-//    }
-//}
 
 commandPrefix = []
 if(windows) {
@@ -52,10 +46,23 @@ Process process
 
 Thread.start {
     try {
+        def sourceDirectoryDir = new File(sourceDirectory)
+        if(!sourceDirectoryDir.exists() || !new File(sourceDirectoryDir, "gradlew").exists()) {
+            sourceDirectoryDir.parentFile.mkdirs()
+            String path = "https://github.com/metridoc/metridoc-job-cli/archive/v${metridocVersion}.zip"
+            new URL(path).withInputStream {inputStream ->
+                def zipFile = new File(sourceDirectoryDir.parentFile, "metridoc-job-cli-${metridocVersion}.zip" as String)
+                zipFile.withOutputStream {outputStream ->
+                    outputStream << inputStream
+                }
+                ArchiveMethods.unzip(zipFile, sourceDirectoryDir.parentFile)
+            }
+        }
         process = new ProcessBuilder(command as List<String>).redirectErrorStream(true).start()
         exit = process.waitFor()
     }
     catch (Throwable throwable) {
+        println ""
         throwable.printStackTrace()
         System.exit(1)
     }
