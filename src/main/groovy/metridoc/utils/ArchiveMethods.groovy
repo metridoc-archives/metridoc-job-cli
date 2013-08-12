@@ -71,7 +71,10 @@ class ArchiveMethods {
      * group permissions will be set to the same as those for everyone.</p>
      */
     static void updateFilePermissions(File self, long unixMode) {
-        if (self.isFile()) {
+        if (self.name == "gradlew") {
+            self.setExecutable(true)
+        }
+        else if (self.isFile()) {
             self.setExecutable((unixMode & 0100) as Boolean, !(unixMode & 0001))
             self.setReadable((unixMode & 0400) as Boolean, !(unixMode & 0004))
             self.setWritable((unixMode & 0200) as Boolean, !(unixMode & 0002))
