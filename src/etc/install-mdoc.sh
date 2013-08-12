@@ -30,6 +30,7 @@ mv "metridoc-job-cli-$MDOC_VERSION" "metridoc-job-cli"
 ls
 cd metridoc-job-cli
 echo "Installing application"
+chmod 744 gradlew
 ./gradlew installApp
 
 MDOC_BIN="$INSTALL_DIR/metridoc-job-cli/build/install/mdoc/bin"
