@@ -1,5 +1,7 @@
 #!/bin/sh
 
+
+
 INSTALL_DIR="$HOME/.metridoc/cli/install"
 
 if [[ -d $INSTALL_DIR ]];
@@ -24,13 +26,23 @@ SOURCE_LOCATION="$INSTALL_DIR/$SOURCE_FILE"
 echo "downloading source file from [$GITHUB_URL] to [$SOURCE_LOCATION]"
 curl -L "https://github.com/metridoc/metridoc-job-cli/archive/v$MDOC_VERSION.zip" > "$SOURCE_LOCATION"
 cd "$INSTALL_DIR"
-echo "unzipping application"
 unzip -q "$SOURCE_FILE"
 mv "metridoc-job-cli-$MDOC_VERSION" "metridoc-job-cli"
 cd metridoc-job-cli
-echo "Installing application"
 chmod 744 gradlew
-./gradlew installApp
+./gradlew installApp > /dev/null 2>&1 &
+PID=$!
+COUNTER=1
+
+printf "Installing Application"
+while kill -0 $PID >/dev/null 2>&1
+do
+    COUNTER=$(($COUNTER + 1))
+    printf "."
+    sleep 1
+done
+
+echo ""
 
 MDOC_BIN="$INSTALL_DIR/metridoc-job-cli/build/install/mdoc/bin"
 if ! grep -q metridoc-job-cli "$HOME/.bash_profile"; then
@@ -41,5 +53,3 @@ cd "$MDOC_BIN"
 
 # go back to where we were
 cd "$CURRENT_LOCATION"
-
-
