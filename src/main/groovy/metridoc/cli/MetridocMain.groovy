@@ -2,7 +2,6 @@ package metridoc.cli
 
 import groovy.io.FileType
 import metridoc.utils.ArchiveMethods
-import org.springframework.context.ApplicationContext
 
 /**
  * Created with IntelliJ IDEA on 8/5/13
@@ -134,7 +133,7 @@ class MetridocMain extends Script {
     }
 
     private boolean dependenciesExist() {
-        dependenciesExistHelper(ApplicationContext.name)
+        dependenciesExistHelper("org.springframework.context.ApplicationContext")
     }
 
 
