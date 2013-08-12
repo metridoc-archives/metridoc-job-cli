@@ -2,6 +2,7 @@ package metridoc.cli
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import org.springframework.context.ApplicationContext
 import spock.lang.Specification
 
 /**
@@ -71,5 +72,28 @@ class MetridocMainSpec extends Specification {
         noExceptionThrown()
         folder.root.listFiles().find {it.name == "metridoc-job-bar-0.1"}
         1 == folder.root.listFiles().size()
+    }
+
+    void "test check for whether or not we should install dependencies"() {
+        given:
+        boolean answer
+
+        when:
+        answer = MetridocMain.dependenciesExistHelper("java.lang.String")
+
+        then:
+        answer
+
+        when:
+        answer = MetridocMain.dependenciesExistHelper("foo.bar.DoesNotExist")
+
+        then:
+        !answer
+
+        when: "calling installDependencies by default"
+        answer = new MetridocMain().dependenciesExist()
+
+        then: "the answer should be false since all dependencies will be available during unit tests"
+        answer
     }
 }
