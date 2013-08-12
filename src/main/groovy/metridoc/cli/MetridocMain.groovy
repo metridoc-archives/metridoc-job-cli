@@ -2,6 +2,7 @@ package metridoc.cli
 
 import groovy.io.FileType
 import metridoc.utils.ArchiveMethods
+import org.springframework.context.ApplicationContext
 
 /**
  * Created with IntelliJ IDEA on 8/5/13
@@ -21,15 +22,23 @@ class MetridocMain extends Script {
     @SuppressWarnings("GroovyAccessibility")
     @Override
     def run() {
-        new InstallMdoc(binding:binding).run()
-        return
+        if(!dependenciesExist()) {
+            new InstallMdoc(binding:binding).run()
+        }
+
 
         String[] args = binding.args
         assert args: "at lest one argument is required to declare what job to run"
 
-        if(args[0] == "install") {
+
+        def command = args[0]
+        if(command == "install") {
             assert args.size() == 2: "when installing a job, [install] requires a location"
             installJob(args[1])
+            return
+        }
+        else if(command == "install-dependencies" || command == "install-deps") {
+            new InstallMdoc(binding: binding)
             return
         }
 
@@ -121,6 +130,21 @@ class MetridocMain extends Script {
 
         filesToDelete.each {
             it.delete()
+        }
+    }
+
+    private boolean dependenciesExist() {
+        dependenciesExistHelper(ApplicationContext.name)
+    }
+
+
+    private static boolean dependenciesExistHelper(String className) {
+        try {
+            Class.forName(className)
+            return true
+        }
+        catch (ClassNotFoundException ex) {
+            return false
         }
     }
 }
