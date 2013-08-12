@@ -27,7 +27,6 @@ cd "$INSTALL_DIR"
 echo "unzipping application"
 unzip -q "$SOURCE_FILE"
 mv "metridoc-job-cli-$MDOC_VERSION" "metridoc-job-cli"
-ls
 cd metridoc-job-cli
 echo "Installing application"
 chmod 744 gradlew
