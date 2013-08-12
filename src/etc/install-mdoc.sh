@@ -1,7 +1,5 @@
 #!/bin/sh
 
-
-
 INSTALL_DIR="$HOME/.metridoc/cli/install"
 
 if [[ -d $INSTALL_DIR ]];
@@ -30,14 +28,12 @@ unzip -q "$SOURCE_FILE"
 mv "metridoc-job-cli-$MDOC_VERSION" "metridoc-job-cli"
 cd metridoc-job-cli
 chmod 744 gradlew
-./gradlew installApp > /dev/null 2>&1 &
+./gradlew installApp > "$INSTALL_DIR/install.log" 2>&1 &
 PID=$!
-COUNTER=1
 
 printf "Installing Application"
 while kill -0 $PID >/dev/null 2>&1
 do
-    COUNTER=$(($COUNTER + 1))
     printf "."
     sleep 1
 done
