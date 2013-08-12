@@ -58,7 +58,11 @@ Thread.start {
                 ArchiveMethods.unzip(zipFile, sourceDirectoryDir.parentFile)
             }
         }
-        process = new ProcessBuilder(command as List<String>).redirectErrorStream(true).start()
+        process = new ProcessBuilder(command as List<String>)
+                .redirectErrorStream(true)
+                .directory(sourceDirectoryDir)
+                .start()
+
         exit = process.waitFor()
     }
     catch (Throwable throwable) {
