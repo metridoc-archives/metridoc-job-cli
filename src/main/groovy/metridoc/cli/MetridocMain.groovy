@@ -25,6 +25,9 @@ class MetridocMain extends Script {
             new InstallMdoc(binding:binding).run()
         }
 
+        if(binding.args.contains("install-deps")) {
+            return
+        }
 
         String[] args = binding.args
         assert args: "at lest one argument is required to declare what job to run"

@@ -15,6 +15,17 @@ targetCompatibility = "1.6"
 archivesBaseName = "metridoc-job-cli"
 version = "0.1M2"
 
+sourceSets {
+    integTest {
+        groovy {
+            srcDir "src/integ/groovy"
+        }
+        resources {
+            srcDir "src/integ/resources"
+        }
+    }
+}
+
 buildscript {
     repositories {
         maven { url "http://dl.bintray.com/upennlib/metridoc" }
@@ -43,9 +54,15 @@ repositories {
 }
 
 dependencies {
-    compile 'org.codehaus.groovy:groovy-all:2.0.8', 'org.apache.commons:commons-compress:1.5'
+    compile 'org.codehaus.groovy:groovy-all:2.0.8', 'org.apache.commons:commons-compress:1.5',
+            'commons-cli:commons-cli:1.2'
+
     provided 'com.github.metridoc:metridoc-tool-gorm:0.1'
+
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+
+    integTestCompile 'org.codehaus.groovy:groovy-all:2.0.8',
+            "org.spockframework:spock-core:0.7-groovy-2.0"
 }
 
 task uploadDist(type: metridoc.gradle.GenericBintrayUpload, dependsOn: "distZip") {
@@ -77,4 +94,14 @@ task copyDependenciesToLib(type: Copy) {
     }
     into destination
     from configurations.provided
+}
+
+//for a single test, you can run "gradle -DintegTests.single=<test name>"
+task integTests(type: Test, dependsOn: ["installApp"]) {
+
+    testClassesDir = sourceSets.integTest.output.classesDir
+    classpath = sourceSets.integTest.runtimeClasspath
+
+    include "**/*Spec*"
+    exclude "**/Abstract*Spec*"
 }

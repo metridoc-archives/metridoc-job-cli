@@ -17,8 +17,18 @@ def mdocHome = "${home}${slash}.metridoc"
 def os = System.getProperty("os.name")
 boolean windows = os.contains("indows") //ignore case
 
-String sourceDirectory = "${mdocHome}${slash}cli${slash}source${slash}metridoc-job-cli-${metridocVersion}"
 
+
+String sourceDirectory
+def userDir = System.getProperty("user.dir")
+if(new File("${userDir}/gradlew").exists()) {
+    sourceDirectory = userDir
+}
+else {
+    sourceDirectory = "${mdocHome}${slash}cli${slash}source${slash}metridoc-job-cli-${metridocVersion}"
+}
+
+println "using application at $sourceDirectory to install dependencies"
 binding.args.each {
     def m = it =~ /^-?-sourceDirectory=(.+)$/
     if(m.matches()) {
