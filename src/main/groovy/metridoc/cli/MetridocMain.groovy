@@ -21,6 +21,26 @@ class MetridocMain extends Script {
     @SuppressWarnings("GroovyAccessibility")
     @Override
     def run() {
+
+        def cli = new CliBuilder(
+                usage: "mdoc [<command> | <job> | help | help <job>] [options]",
+                header: "\nGlobal Options:",
+                footer: "\nAvailable Commands:\n" +
+                        " --> list-jobs                  lists all available jobs\n" +
+                        " --> install-job <destination>  lists all available jobs\n" +
+                        " --> help [job name]            prints README of job, or this message job name is blank"
+        )
+
+        cli.help("prints this message")
+        cli.stacktrace("prints full stacktrace on error")
+        def options = cli.parse(binding.args)
+
+        if(!options.arguments() || options.help || options.arguments().contains("help")) {
+            cli.usage()
+            return
+        }
+
+
         if(!dependenciesExist()) {
             new InstallMdoc(binding:binding).run()
         }
