@@ -18,16 +18,12 @@ class MetridocMain {
         new MetridocMain(args: args).run()
     }
 
-    @SuppressWarnings("GroovyAccessibility")
-    @Override
+    @SuppressWarnings(["GroovyAccessibility", "GroovyAssignabilityCheck"])
     def run() {
 
         def (OptionAccessor options, CliBuilder cli) = parseArgs()
 
-        if(askingForHelp(options)) {
-            cli.usage()
-            return
-        }
+        if(doHelp(cli, options)) return
 
         checkForAndInstallDependencies()
 
@@ -35,8 +31,9 @@ class MetridocMain {
             return
         }
 
-        assert args: "at lest one argument is required to declare what job to run"
-        def command = args[0]
+        def cliArgs = options.arguments()
+
+        def command = cliArgs[0]
         if(command == "install") {
             assert args.size() == 2: "when installing a job, [install] requires a location"
             installJob(args[1])
@@ -71,7 +68,26 @@ class MetridocMain {
         return new GroovyShell().evaluate(metridocScript)
     }
 
-    protected boolean callingInstallDepsCommand(OptionAccessor options) {
+    static boolean doHelp(CliBuilder cli, OptionAccessor options) {
+        def arguments = options.arguments()
+        if(arguments[0] == "help" &&  arguments.size() > 1) {
+            def file = new File(arguments[1])
+            def parentDir = file.parentFile
+            def readme = new File(parentDir, "README")
+            println readme.text
+
+            return true
+        }
+
+        if(askingForHelp(options)) {
+            cli.usage()
+            return true
+        }
+
+        return false
+    }
+
+    protected static boolean callingInstallDepsCommand(OptionAccessor options) {
         options.arguments().contains("install-deps")
     }
 
@@ -81,7 +97,7 @@ class MetridocMain {
         }
     }
 
-    protected boolean askingForHelp(OptionAccessor options) {
+    protected static boolean askingForHelp(OptionAccessor options) {
         !options.arguments() || options.help || options.arguments().contains("help")
     }
 
@@ -91,7 +107,7 @@ class MetridocMain {
                 header: "\nGlobal Options:",
                 footer: "\nAvailable Commands:\n" +
                         " --> list-jobs                  lists all available jobs\n" +
-                        " --> install-job <destination>  installs a job\n" +
+                        " --> install <destination>      installs a job\n" +
                         " --> help [job name]            prints README of job, or this message job name is blank\n" +
                         " --> install-deps               installs dependencies if they are not there"
         )
@@ -165,7 +181,7 @@ class MetridocMain {
         }
     }
 
-    private boolean dependenciesExist() {
+    private static boolean dependenciesExist() {
         dependenciesExistHelper("org.springframework.context.ApplicationContext")
     }
 
@@ -175,7 +191,7 @@ class MetridocMain {
             Class.forName(className)
             return true
         }
-        catch (ClassNotFoundException ex) {
+        catch (ClassNotFoundException ignored) {
             return false
         }
     }
