@@ -17,9 +17,7 @@ class MetridocMainSpec extends Specification {
     void "test running a script"() {
         given:
         def args = ["src/test/testJobs/script/simpleScript.groovy"]
-        def binding = new Binding()
-        binding.args = args
-        def main = new MetridocMain(binding: binding)
+        def main = new MetridocMain(args: args)
 
         when:
         def result = main.run()
@@ -32,9 +30,7 @@ class MetridocMainSpec extends Specification {
     void "test running a simple job"() {
         given:
         def args = ["src/test/testJobs/simpleJob"]
-        def binding = new Binding()
-        binding.args = args
-        def main = new MetridocMain(binding: binding)
+        def main = new MetridocMain(args: args)
 
         when:
         def result = main.run()
@@ -47,9 +43,7 @@ class MetridocMainSpec extends Specification {
     void "test running a complex job"() {
         given:
         def args = ["foo"]
-        def binding = new Binding()
-        binding.args = args
-        def main = new MetridocMain(binding: binding, jobPath: "src/test/testJobs/complexJob")
+        def main = new MetridocMain(args: args, jobPath: "src/test/testJobs/complexJob")
 
         when:
         def result = main.run()
@@ -62,8 +56,7 @@ class MetridocMainSpec extends Specification {
     void "test installing and running a job"() {
         given:
         def args = ["install", new File("src/test/testJobs/metridoc-job-bar-0.1.zip").toURI().toURL().toString()]
-        def binding = new Binding(args:args)
-        def main = new MetridocMain(binding: binding, jobPath: folder.getRoot().toString())
+        def main = new MetridocMain(args: args, jobPath: folder.getRoot().toString())
 
         when:
         main.run()

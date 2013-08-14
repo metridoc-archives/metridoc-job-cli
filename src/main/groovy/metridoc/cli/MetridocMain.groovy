@@ -7,60 +7,39 @@ import metridoc.utils.ArchiveMethods
  * Created with IntelliJ IDEA on 8/5/13
  * @author Tommy Barker
  */
-class MetridocMain extends Script {
+class MetridocMain {
 
     def home = System.getProperty("user.home")
     String jobPath = "$home/.metridoc/jobs"
     def libDirectories = ["$home/.groovy/lib", "$home/.grails/drivers", "$home/.metridoc/lib", "$home/.metridoc/drivers"]
+    String[] args
 
     public static void main(String[] args) {
-        def binding = new Binding(args: args)
-        new MetridocMain(binding: binding).run()
+        new MetridocMain(args: args).run()
     }
 
     @SuppressWarnings("GroovyAccessibility")
     @Override
     def run() {
 
-        def cli = new CliBuilder(
-                usage: "mdoc [<command> | <job> | help | help <job>] [options]",
-                header: "\nGlobal Options:",
-                footer: "\nAvailable Commands:\n" +
-                        " --> list-jobs                  lists all available jobs\n" +
-                        " --> install-job <destination>  lists all available jobs\n" +
-                        " --> help [job name]            prints README of job, or this message job name is blank"
-        )
+        def (OptionAccessor options, CliBuilder cli) = parseArgs()
 
-        cli.help("prints this message")
-        cli.stacktrace("prints full stacktrace on error")
-        def options = cli.parse(binding.args)
-
-        if(!options.arguments() || options.help || options.arguments().contains("help")) {
+        if(askingForHelp(options)) {
             cli.usage()
             return
         }
 
+        checkForAndInstallDependencies()
 
-        if(!dependenciesExist()) {
-            new InstallMdoc(binding:binding).run()
-        }
-
-        if(binding.args.contains("install-deps")) {
+        if(callingInstallDepsCommand(options)) {
             return
         }
 
-        String[] args = binding.args
         assert args: "at lest one argument is required to declare what job to run"
-
-
         def command = args[0]
         if(command == "install") {
             assert args.size() == 2: "when installing a job, [install] requires a location"
             installJob(args[1])
-            return
-        }
-        else if(command == "install-dependencies" || command == "install-deps") {
-            new InstallMdoc(binding: binding)
             return
         }
 
@@ -90,6 +69,37 @@ class MetridocMain extends Script {
         }
 
         return new GroovyShell().evaluate(metridocScript)
+    }
+
+    protected boolean callingInstallDepsCommand(OptionAccessor options) {
+        options.arguments().contains("install-deps")
+    }
+
+    protected void checkForAndInstallDependencies() {
+        if (!dependenciesExist()) {
+            new InstallMdoc(binding: new Binding(args:args)).run()
+        }
+    }
+
+    protected boolean askingForHelp(OptionAccessor options) {
+        !options.arguments() || options.help || options.arguments().contains("help")
+    }
+
+    protected List parseArgs() {
+        def cli = new CliBuilder(
+                usage: "mdoc [<command> | <job> | help | help <job>] [options]",
+                header: "\nGlobal Options:",
+                footer: "\nAvailable Commands:\n" +
+                        " --> list-jobs                  lists all available jobs\n" +
+                        " --> install-job <destination>  installs a job\n" +
+                        " --> help [job name]            prints README of job, or this message job name is blank\n" +
+                        " --> install-deps               installs dependencies if they are not there"
+        )
+
+        cli.help("prints this message")
+        cli.stacktrace("prints full stacktrace on error")
+        def options = cli.parse(args)
+        [options, cli]
     }
 
     URLClassLoader findHighestLevelClassLoader() {
