@@ -27,20 +27,17 @@ class MetridocMain {
 
         checkForAndInstallDependencies()
 
-        if(callingInstallDepsCommand(options)) {
-            return
-        }
+        if(doInstallDeps(options)) return
 
-        def cliArgs = options.arguments()
+        if(doInstall(options)) return
 
-        def command = cliArgs[0]
-        if(command == "install") {
-            assert args.size() == 2: "when installing a job, [install] requires a location"
-            installJob(args[1])
-            return
-        }
+        return runJob(options)
+    }
 
-        def file = new File(args[0])
+    @SuppressWarnings("GroovyAccessibility")
+    def protected runJob(OptionAccessor options) {
+        def shortJobName = options.arguments()[0]
+        def file = new File(shortJobName)
         File metridocScript
         def loader = findHighestLevelClassLoader()
         addLibDirectories(loader)
@@ -53,29 +50,58 @@ class MetridocMain {
             metridocScript = new File(file, "metridoc.groovy")
         }
         else {
-            def jobName = "metridoc-job-${args[0]}"
-            new File(jobPath).eachFile(FileType.DIRECTORIES) {
-                if (it.name.startsWith(jobName)) {
-                    loader.addURL(new File(it, "src/main/resources").toURI().toURL())
-                    def groovyDir = new File(it, "src/main/groovy")
-                    loader.addURL(groovyDir.toURI().toURL())
-                    metridocScript = new File(groovyDir, "metridoc.groovy")
-                }
-            }
-
+            def jobDir = getJobDir(shortJobName)
+            loader.addURL(new File(jobDir, "src/main/resources").toURI().toURL())
+            def groovyDir = new File(jobDir, "src/main/groovy")
+            loader.addURL(groovyDir.toURI().toURL())
+            metridocScript = new File(groovyDir, "metridoc.groovy")
         }
 
         return new GroovyShell().evaluate(metridocScript)
     }
 
-    static boolean doHelp(CliBuilder cli, OptionAccessor options) {
+    boolean doInstall(OptionAccessor options) {
+        def cliArgs = options.arguments()
+
+        def command = cliArgs[0]
+        if(command == "install") {
+            assert cliArgs.size() == 2: "when installing a job, [install] requires a location"
+            installJob(cliArgs[1])
+            return true
+        }
+
+        return false
+    }
+
+    protected File getJobDir(String jobName) {
+        def fullJobName = jobName
+        if(!fullJobName.startsWith("metridoc-job-")) {
+            fullJobName = "metridoc-job-$jobName"
+        }
+        File jobDir = null
+        new File(jobPath).eachFile(FileType.DIRECTORIES) {
+            if(it.name.startsWith(fullJobName)) {
+                jobDir = it
+            }
+        }
+
+        return jobDir
+    }
+
+    protected boolean doHelp(CliBuilder cli, OptionAccessor options) {
         def arguments = options.arguments()
+        File readme
         if(arguments[0] == "help" &&  arguments.size() > 1) {
             def file = new File(arguments[1])
-            def parentDir = file.parentFile
-            def readme = new File(parentDir, "README")
+            def parentDir
+            if (file.exists()) {
+                parentDir = file.parentFile
+            }
+            else {
+                parentDir = getJobDir(arguments[1])
+            }
+            readme = new File(parentDir, "README")
             println readme.text
-
             return true
         }
 
@@ -87,7 +113,7 @@ class MetridocMain {
         return false
     }
 
-    protected static boolean callingInstallDepsCommand(OptionAccessor options) {
+    protected static boolean doInstallDeps(OptionAccessor options) {
         options.arguments().contains("install-deps")
     }
 
@@ -163,10 +189,24 @@ class MetridocMain {
         def index = url.lastIndexOf("/")
         def fileName = url.substring(index + 1)
         def jobPathDir = new File("$jobPath")
+        if(!jobPathDir.exists()) {
+            jobPathDir.mkdirs()
+        }
         def file = new File(jobPathDir, fileName)
-        new URL(url).withInputStream { inputStream ->
+        def fileToInstall
+
+        try {
+            fileToInstall = new URL(url)
+        }
+        catch (Throwable ignored) {
+            fileToInstall = new File(url)
+            assert fileToInstall.exists() : "$fileToInstall does not exist"
+        }
+
+        fileToInstall.withInputStream { inputStream ->
             file.newOutputStream() << inputStream
         }
+
         ArchiveMethods.unzip(file, jobPathDir)
         def filesToDelete = []
 

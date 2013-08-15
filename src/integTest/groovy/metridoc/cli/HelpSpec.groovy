@@ -1,5 +1,4 @@
 package metridoc.cli
-
 /**
  * Created with IntelliJ IDEA on 8/14/13
  * @author Tommy Barker
@@ -36,14 +35,26 @@ class HelpSpec extends AbstractFunctionalSpec {
     }
 
     void "test help for a job"() {
-        given:
-        int exitCode
-
         when: "I ask help for a job with a path"
-        exitCode = runCommand(["help", "src/test/testJobs/script/simpleScript.groovy"], new File(baseWorkDir))
+        int exitCode = runCommand(["help", "src/test/testJobs/script/simpleScript.groovy"], new File(baseWorkDir))
 
         then: "The readme at its base is returned"
         0 == exitCode
         output.contains("I am a simple script")
+    }
+
+    void "test help for a job after install"() {
+        when: "I install a job"
+        runCommand(["install", "src/test/testJobs/metridoc-job-bar-0.1.zip"], new File(baseWorkDir))
+
+        and: "and ask for help on installed job"
+        int exitCode =runCommand(["help", "bar"], new File(baseWorkDir))
+
+        then:
+        0 == exitCode
+        output.contains("readme from bar")
+
+        cleanup:
+        new File("${System.getProperty("user.home")}/.metridoc/jobs/metridoc-job-bar-0.1").deleteDir()
     }
 }
