@@ -18,6 +18,12 @@ class InstallDepsSpec extends AbstractFunctionalSpec {
         then:
         0 == exitCode
         5 < new File("${System.getProperty('user.dir')}/build/install/mdoc/lib").list().size()
-    }
 
+        when: "install-deps is called again"
+        exitCode = runCommand(["install-deps"], new File(baseWorkDir))
+
+        then:
+        0 == exitCode
+        output.contains("Dependencies have already been installed")
+    }
 }
