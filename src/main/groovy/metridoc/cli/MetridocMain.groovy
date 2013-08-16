@@ -25,7 +25,7 @@ class MetridocMain {
 
         if(doHelp(cli, options)) return
 
-        checkForAndInstallDependencies()
+        checkForAndInstallDependencies(options)
 
         if(doInstallDeps(options)) return
 
@@ -57,7 +57,7 @@ class MetridocMain {
             metridocScript = new File(groovyDir, "metridoc.groovy")
         }
 
-        return new GroovyShell().evaluate(metridocScript)
+        return new GroovyShell(Thread.currentThread().contextClassLoader).evaluate(metridocScript)
     }
 
     boolean doInstall(OptionAccessor options) {
@@ -117,9 +117,12 @@ class MetridocMain {
         options.arguments().contains("install-deps")
     }
 
-    protected void checkForAndInstallDependencies() {
+    protected void checkForAndInstallDependencies(OptionAccessor options) {
         if (!dependenciesExist()) {
             new InstallMdoc(binding: new Binding(args:args)).run()
+        }
+        else if(doInstallDeps(options)) {
+            println "Dependencies have already been installed"
         }
     }
 

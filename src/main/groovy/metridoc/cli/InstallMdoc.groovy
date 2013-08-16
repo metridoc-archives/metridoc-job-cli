@@ -1,14 +1,15 @@
 package metridoc.cli
 
+import groovy.sql.Sql
 import metridoc.utils.ArchiveMethods
 
 import java.util.concurrent.CountDownLatch
 
 def classpath = System.getProperty("java.class.path")
 def destination = new File(classpath.split(":")[0]).parentFile
-Set currentLibs = []
+Set currentLibs = [] as Set<String>
 destination.eachFile {
-    currentLibs << it
+    currentLibs << it.name
 }
 def slash = System.getProperty("file.separator")
 def metridocVersion = this.getClass().classLoader.getResourceAsStream("MDOC_VERSION").getText("utf-8")
@@ -96,13 +97,14 @@ if(exit != 0) {
     System.exit(1)
 }
 
-def classLoader = this.getClass().classLoader
-while(classLoader.parent && classLoader.parent instanceof URLClassLoader) {
+def classLoader = Sql.classLoader
+while(!(classLoader instanceof URLClassLoader)) {
     classLoader = classLoader.parent
 }
 
 destination.eachFile {
-    if(!currentLibs.contains(it)) {
+    if(!currentLibs.contains(it.name)) {
+        println "adding $it.name to classpath"
         classLoader.addURL(it.toURI().toURL())
     }
 }
