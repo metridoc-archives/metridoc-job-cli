@@ -105,3 +105,12 @@ task integTests(type: Test, dependsOn: ["installApp"]) {
     include "**/*Spec*"
     exclude "**/Abstract*Spec*"
 }
+
+startScripts {
+    doLast {
+        File windowsScriptFile = file getWindowsScript()
+        File unixScriptFile    = file getUnixScript()
+        windowsScriptFile.text = windowsScriptFile.text.replaceFirst(/CLASSPATH=[^\s]+/, 'CLASSPATH=%APP_HOME%\\\\lib\\\\*')
+        unixScriptFile.text    = unixScriptFile.text.replaceFirst(/CLASSPATH=[^\s]+/, 'CLASSPATH=\\$APP_HOME/lib/*')
+    }
+}
