@@ -9,7 +9,7 @@ class InstallSpec extends AbstractFunctionalSpec {
 
     void "test install job"() {
         when:
-        int exitCode = runCommand(["install", "src/test/testJobs/metridoc-job-bar-0.1.zip"], new File(baseWorkDir))
+        int exitCode = runCommand(["install", "src/test/testJobs/metridoc-job-bar-0.1.zip"])
 
         then:
         0 == exitCode
