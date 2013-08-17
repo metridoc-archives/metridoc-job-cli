@@ -10,7 +10,7 @@ class HelpSpec extends AbstractFunctionalSpec {
         int exitCode
 
         when: "I run command with no args"
-        exitCode = runCommand([], new File(baseWorkDir))
+        exitCode = runCommand([])
 
         then:
         0 == exitCode
@@ -18,7 +18,7 @@ class HelpSpec extends AbstractFunctionalSpec {
         output =~ /\s+Global Options:\s+/
 
         when:
-        exitCode = runCommand(["-help"], new File(baseWorkDir))
+        exitCode = runCommand(["-help"])
 
         then:
         0 == exitCode
@@ -26,7 +26,7 @@ class HelpSpec extends AbstractFunctionalSpec {
         output =~ /\s+Global Options:\s+/
 
         when:
-        exitCode = runCommand(["help"], new File(baseWorkDir))
+        exitCode = runCommand(["help"])
 
         then:
         0 == exitCode
@@ -36,7 +36,7 @@ class HelpSpec extends AbstractFunctionalSpec {
 
     void "test help for a job"() {
         when: "I ask help for a job with a path"
-        int exitCode = runCommand(["help", "src/test/testJobs/script/simpleScript.groovy"], new File(baseWorkDir))
+        int exitCode = runCommand(["help", "src/test/testJobs/script/simpleScript.groovy"])
 
         then: "The readme at its base is returned"
         0 == exitCode
@@ -45,10 +45,10 @@ class HelpSpec extends AbstractFunctionalSpec {
 
     void "test help for a job after install"() {
         when: "I install a job"
-        runCommand(["install", "src/test/testJobs/metridoc-job-bar-0.1.zip"], new File(baseWorkDir))
+        runCommand(["install", "src/test/testJobs/metridoc-job-bar-0.1.zip"])
 
         and: "and ask for help on installed job"
-        int exitCode =runCommand(["help", "bar"], new File(baseWorkDir))
+        int exitCode =runCommand(["help", "bar"])
 
         then:
         0 == exitCode
