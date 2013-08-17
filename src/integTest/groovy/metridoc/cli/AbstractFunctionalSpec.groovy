@@ -17,24 +17,7 @@ class AbstractFunctionalSpec extends Specification {
 
     protected final env = [:]
 
-    /**
-     * Runs a mdoc command. For example:
-     *
-     * <pre>runCommand(["create", "ratpack", "0.1", "ratapp"], baseWorkDir)</pre>
-     *
-     * It will look for mdoc in either the directory specified by the
-     * {@code mdoc.installDir} system property, or {cwd}/build/install. It will
-     * also pass in the current PATH environment variable to the mdoc process if
-     * {@code env} doesn't contain such a variable itself.
-     * @param cmdList The command line to test, as a list.
-     * @param workDir The directory to run the command in. In other words, this becomes
-     * the process's current working directory.
-     * @param inputs A list of input strings to pass to the process if it needs them.
-     * These could be simple "y" or "n" strings to answer such questions, or something
-     * larger.
-     * @return The exit code of the mdoc process.
-     */
-    int runCommand(List cmdList, File workDir, List inputs = []) {
+    int runCommand(List cmdList, List inputs = []) {
         resetOutput()
 
         def mdocInstallDir = System.getProperty("user.dir") + "/build/install/mdoc"
@@ -49,7 +32,8 @@ class AbstractFunctionalSpec extends Specification {
         // the form VAR=value.
         def envp = env.collect { key, value -> key + "=" + value }
 
-        Process process = (["${mdocInstallDir}/bin/mdoc", "--stacktrace"] + cmdList).execute(envp, workDir)
+        Process process = (["${mdocInstallDir}/bin/mdoc", "--stacktrace"] + cmdList).execute(envp,
+                new File(baseWorkDir))
 
         if (inputs) {
             def newLine = System.getProperty("line.separator")
@@ -97,17 +81,6 @@ class AbstractFunctionalSpec extends Specification {
         synchronized (this._outputLock) {
             processOutput = new StringBuilder()
         }
-    }
-
-    /**
-     * Reads the current version of Lazybones from a properties file and
-     * returns it as a string.
-     */
-    protected String readLazybonesVersion() {
-        def stream = getClass().getResourceAsStream("mdoc.properties")
-        def props = new Properties()
-        props.load(stream)
-        return props.getProperty("mdoc.version")
     }
 
     private Thread consumeProcessStream(final InputStream stream) {

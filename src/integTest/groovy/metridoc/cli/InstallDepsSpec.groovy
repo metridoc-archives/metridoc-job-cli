@@ -13,14 +13,14 @@ class InstallDepsSpec extends AbstractFunctionalSpec {
         int exitCode
 
         when: "install-deps is called"
-        exitCode = runCommand(["install-deps"], new File(baseWorkDir))
+        exitCode = runCommand(["install-deps"])
 
         then:
         0 == exitCode
         5 < new File("${System.getProperty('user.dir')}/build/install/mdoc/lib").list().size()
 
         when: "install-deps is called again"
-        exitCode = runCommand(["install-deps"], new File(baseWorkDir))
+        exitCode = runCommand(["install-deps"])
 
         then:
         0 == exitCode

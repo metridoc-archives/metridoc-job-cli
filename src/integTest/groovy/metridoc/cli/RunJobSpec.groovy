@@ -10,7 +10,7 @@ class RunJobSpec extends AbstractFunctionalSpec {
 
     void "test running a script"() {
         when:
-        int exitCode = runCommand([scriptLocation], new File(baseWorkDir))
+        int exitCode = runCommand([scriptLocation])
 
         then:
         0 == exitCode
