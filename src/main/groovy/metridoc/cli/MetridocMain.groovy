@@ -18,12 +18,14 @@ class MetridocMain {
         new MetridocMain(args: args).run()
     }
 
-    @SuppressWarnings(["GroovyAccessibility", "GroovyAssignabilityCheck"])
+    @SuppressWarnings(["GroovyAccessibility", "GroovyAssignabilityCheck", "GroovyUnnecessaryReturn"])
     def run() {
 
         def (OptionAccessor options, CliBuilder cli) = parseArgs()
 
         if(doHelp(cli, options)) return
+
+        if(doListJobs(options)) return
 
         checkForAndInstallDependencies(options)
 
@@ -32,6 +34,25 @@ class MetridocMain {
         if(doInstall(options)) return
 
         return runJob(options)
+    }
+
+    boolean doListJobs(OptionAccessor options) {
+        def cliArgs = options.arguments()
+        println "Available Jobs:"
+        if("list-jobs" == cliArgs[0]) {
+            new File(jobPath).eachFile(FileType.DIRECTORIES) {
+                def m = it.name =~ /metridoc-job-(\w+)-(.+)/
+                if(m.matches()) {
+                    def name = m.group(1)
+                    def version = m.group(2)
+                    println " --> $name (v$version)"
+                }
+            }
+
+            return true
+        }
+
+        return false
     }
 
     @SuppressWarnings("GroovyAccessibility")
