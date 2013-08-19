@@ -53,6 +53,19 @@ class MetridocMainSpec extends Specification {
         "complex foo project ran" == result
     }
 
+    void "test running a complex job from a directory" () {
+        given:
+        def args = ["src/test/testJobs/complexJob/metridoc-job-foo-0.1"]
+        def main = new MetridocMain(args: args)
+
+        when:
+        def result = main.run()
+
+        then:
+        noExceptionThrown()
+        "complex foo project ran" == result
+    }
+
     void "test installing and running a job"() {
         given:
         def args = ["install", new File("src/test/testJobs/metridoc-job-bar-0.1.zip").toURI().toURL().toString()]

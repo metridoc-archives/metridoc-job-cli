@@ -39,8 +39,8 @@ class MetridocMain {
 
     boolean doListJobs(OptionAccessor options) {
         def cliArgs = options.arguments()
-        println "Available Jobs:"
         if("list-jobs" == cliArgs[0]) {
+            println "Available Jobs:"
             new File(jobPath).eachFile(FileType.DIRECTORIES) {
                 def m = it.name =~ /metridoc-job-(\w+)-(.+)/
                 if(m.matches()) {
@@ -68,19 +68,13 @@ class MetridocMain {
             metridocScript = file
         }
         else if (file.isDirectory()) {
-            loader.addURL(file.toURI().toURL())
+            addDirectoryResourcesToClassPath(loader, file)
             metridocScript = getFileFromDirectory(file)
         }
         else {
             def jobDir = getJobDir(shortJobName)
-            def resourceDir = new File(jobDir, "src/main/resources")
-            loader.addURL(resourceDir.toURI().toURL())
-            def groovyDir = new File(jobDir, "src/main/groovy")
-            loader.addURL(groovyDir.toURI().toURL())
-            metridocScript = getFileFromDirectory(groovyDir, shortJobName)
-            if(!metridocScript.exists()) {
-                metridocScript = getFileFromDirectory(resourceDir, shortJobName)
-            }
+            addDirectoryResourcesToClassPath(loader, jobDir)
+            metridocScript = getFileFromDirectory(jobDir, shortJobName)
         }
 
         def binding = new Binding()
@@ -90,7 +84,22 @@ class MetridocMain {
             binding.args = jobArgs
         }
 
+        assert metridocScript && metridocScript.exists() : "root script does not exist"
         return new GroovyShell(Thread.currentThread().contextClassLoader, binding).evaluate(metridocScript)
+    }
+
+    @SuppressWarnings(["GrMethodMayBeStatic", "GroovyAccessibility"])
+    protected void addDirectoryResourcesToClassPath(URLClassLoader loader, File file) {
+        def resourceDir = new File(file, "src/main/resources")
+        if(resourceDir.exists()) {
+            loader.addURL(resourceDir.toURI().toURL())
+        }
+        def groovyDir = new File(file, "src/main/groovy")
+        if(groovyDir.exists()) {
+            loader.addURL(groovyDir.toURI().toURL())
+        }
+
+        loader.addURL(file.toURI().toURL())
     }
 
     @SuppressWarnings("GrMethodMayBeStatic")
@@ -99,11 +108,29 @@ class MetridocMain {
             shortName = getShortName(file.name)
         }
 
-        def response = new File(file, "metridoc.groovy")
+        def response
 
+        response = new File(file, "metridoc.groovy")
+        if(response.exists()) return response
+        response = new File(file, "${shortName}.groovy")
         if(response.exists()) return response
 
-        return new File(file, "${shortName}.groovy")
+        def groovyDir = new File(file, "src/main/groovy")
+        def resourcesDir = new File(file, "src/main/resources")
+
+        response = new File(groovyDir, "metridoc.groovy")
+        if(response.exists()) return response
+        response = new File(groovyDir, "${shortName}.groovy")
+        if(response.exists()) return response
+
+        response = new File(resourcesDir, "metridoc.groovy")
+        if(response.exists()) return response
+        response = new File(resourcesDir, "${shortName}.groovy")
+        if(response.exists()) return response
+
+        println "Could not find a root script [metridoc.groovy] or [${shortName}.groovy] in $file, $groovyDir, or $resourcesDir"
+
+        return null
     }
 
     protected static String getShortName(String longJobName) {
