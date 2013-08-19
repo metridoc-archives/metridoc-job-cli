@@ -33,4 +33,13 @@ class RunJobSpec extends AbstractFunctionalSpec {
         0 == exitCode
         output.contains("bar has run")
     }
+
+    void "run a job with arguments"() {
+        when:
+        int exitCode = runCommand(["bar", "foo", "bar"])
+
+        then:
+        0 == exitCode
+        output.contains("bar has args [foo, bar]")
+    }
 }
