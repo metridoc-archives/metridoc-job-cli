@@ -216,6 +216,18 @@ class MetridocMain {
         if(!jobPathDir.exists()) {
             jobPathDir.mkdirs()
         }
+
+        def m = fileName =~ /(metridoc-job-\w+)-[0-9]/
+        if(m.lookingAt()) {
+            jobPathDir.eachFile(FileType.DIRECTORIES) {
+                def unversionedName = m.group(1)
+                if(it.name.startsWith(unversionedName)) {
+                    println "deleting $it and installing $fileName"
+                    assert it.deleteDir() : "Could not delete $it"
+                }
+            }
+        }
+
         def file = new File(jobPathDir, fileName)
         def fileToInstall
 
