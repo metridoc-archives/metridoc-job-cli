@@ -89,4 +89,15 @@ class MetridocMainSpec extends Specification {
         then: "the answer should be false since all dependencies will be available during unit tests"
         answer
     }
+
+    void "test extracting short name from long name"() {
+        expect:
+        a == MetridocMain.getShortName(b)
+
+        where:
+        a     | b
+        "foo" | "metridoc-job-foo"
+        "foo" | "metridoc-job-foo-1.0"
+        "foo" | "foo"
+    }
 }

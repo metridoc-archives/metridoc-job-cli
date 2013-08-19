@@ -9,6 +9,7 @@ import metridoc.utils.ArchiveMethods
  */
 class MetridocMain {
 
+    public static final String LONG_JOB_PREFIX = "metridoc-job-"
     def home = System.getProperty("user.home")
     String jobPath = "$home/.metridoc/jobs"
     def libDirectories = ["$home/.groovy/lib", "$home/.grails/drivers", "$home/.metridoc/lib", "$home/.metridoc/drivers"]
@@ -68,7 +69,7 @@ class MetridocMain {
         }
         else if (file.isDirectory()) {
             loader.addURL(file.toURI().toURL())
-            metridocScript = getFileFromDirectory(file, shortJobName)
+            metridocScript = getFileFromDirectory(file)
         }
         else {
             def jobDir = getJobDir(shortJobName)
@@ -93,12 +94,29 @@ class MetridocMain {
     }
 
     @SuppressWarnings("GrMethodMayBeStatic")
-    protected File getFileFromDirectory(File file, String shortName) {
+    protected File getFileFromDirectory(File file, String shortName = null) {
+        if(shortName == null) {
+            shortName = getShortName(file.name)
+        }
+
         def response = new File(file, "metridoc.groovy")
 
         if(response.exists()) return response
 
         return new File(file, "${shortName}.groovy")
+    }
+
+    protected static String getShortName(String longJobName) {
+        if(longJobName.startsWith(LONG_JOB_PREFIX)) {
+            def shortName = longJobName.substring(LONG_JOB_PREFIX.size())
+            def index = shortName.lastIndexOf("-")
+            if(index != -1) {
+                return shortName.substring(0, index)
+            }
+
+            return shortName
+        }
+        return longJobName
     }
 
     boolean doInstall(OptionAccessor options) {
