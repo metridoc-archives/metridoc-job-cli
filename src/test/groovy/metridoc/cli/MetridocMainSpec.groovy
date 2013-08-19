@@ -53,6 +53,19 @@ class MetridocMainSpec extends Specification {
         "complex foo project ran" == result
     }
 
+    void "test running a complex job from a directory" () {
+        given:
+        def args = ["src/test/testJobs/complexJob/metridoc-job-foo-0.1"]
+        def main = new MetridocMain(args: args)
+
+        when:
+        def result = main.run()
+
+        then:
+        noExceptionThrown()
+        "complex foo project ran" == result
+    }
+
     void "test installing and running a job"() {
         given:
         def args = ["install", new File("src/test/testJobs/metridoc-job-bar-0.1.zip").toURI().toURL().toString()]
@@ -88,5 +101,16 @@ class MetridocMainSpec extends Specification {
 
         then: "the answer should be false since all dependencies will be available during unit tests"
         answer
+    }
+
+    void "test extracting short name from long name"() {
+        expect:
+        a == MetridocMain.getShortName(b)
+
+        where:
+        a     | b
+        "foo" | "metridoc-job-foo"
+        "foo" | "metridoc-job-foo-1.0"
+        "foo" | "foo"
     }
 }
