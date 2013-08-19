@@ -68,17 +68,37 @@ class MetridocMain {
         }
         else if (file.isDirectory()) {
             loader.addURL(file.toURI().toURL())
-            metridocScript = new File(file, "metridoc.groovy")
+            metridocScript = getFileFromDirectory(file, shortJobName)
         }
         else {
             def jobDir = getJobDir(shortJobName)
-            loader.addURL(new File(jobDir, "src/main/resources").toURI().toURL())
+            def resourceDir = new File(jobDir, "src/main/resources")
+            loader.addURL(resourceDir.toURI().toURL())
             def groovyDir = new File(jobDir, "src/main/groovy")
             loader.addURL(groovyDir.toURI().toURL())
-            metridocScript = new File(groovyDir, "metridoc.groovy")
+            metridocScript = getFileFromDirectory(groovyDir, shortJobName)
+            if(!metridocScript.exists()) {
+                metridocScript = getFileFromDirectory(resourceDir, shortJobName)
+            }
         }
 
-        return new GroovyShell(Thread.currentThread().contextClassLoader).evaluate(metridocScript)
+        def binding = new Binding()
+        binding.args = [] as String[]
+        if(args.size() > 2) {
+            def jobArgs = args[2..args.size() - 1] as String[]
+            binding.args = jobArgs
+        }
+
+        return new GroovyShell(Thread.currentThread().contextClassLoader, binding).evaluate(metridocScript)
+    }
+
+    @SuppressWarnings("GrMethodMayBeStatic")
+    protected File getFileFromDirectory(File file, String shortName) {
+        def response = new File(file, "metridoc.groovy")
+
+        if(response.exists()) return response
+
+        return new File(file, "${shortName}.groovy")
     }
 
     boolean doInstall(OptionAccessor options) {
