@@ -5,7 +5,8 @@ package metridoc.cli
  */
 class InstallSpec extends AbstractFunctionalSpec {
 
-    def bar = new File("${System.getProperty("user.home")}/.metridoc/jobs/metridoc-job-bar-0.1")
+    def bar1 = new File("${System.getProperty("user.home")}/.metridoc/jobs/metridoc-job-bar-0.1")
+    def bar2 = new File("${System.getProperty("user.home")}/.metridoc/jobs/metridoc-job-bar-0.2")
 
     void "test install job"() {
         when:
@@ -13,9 +14,18 @@ class InstallSpec extends AbstractFunctionalSpec {
 
         then:
         0 == exitCode
-        bar.exists()
+        bar1.exists()
+
+        when:
+        exitCode = runCommand(["install", "src/test/testJobs/metridoc-job-bar-0.2.zip"])
+
+        then:
+        0 == exitCode
+        !bar1.exists()
+        bar2.exists()
 
         cleanup:
-        bar.deleteDir()
+        bar1.deleteDir()
+        bar2.deleteDir()
     }
 }
