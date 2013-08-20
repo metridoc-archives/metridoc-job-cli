@@ -113,4 +113,13 @@ class MetridocMainSpec extends Specification {
         "foo" | "metridoc-job-foo-1.0"
         "foo" | "foo"
     }
+
+    void "test grabbing a file from a directory"() {
+        when:
+        def readme = new MetridocMain().getFileFromDirectory(new File("src/test/testJobs/complexJob/metridoc-job-foo-0.1"), "README")
+
+        then:
+        readme.exists()
+        readme.text.contains("complex foo's README")
+    }
 }
