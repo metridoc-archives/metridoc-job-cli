@@ -69,12 +69,12 @@ class MetridocMain {
         }
         else if (file.isDirectory()) {
             addDirectoryResourcesToClassPath(loader, file)
-            metridocScript = getFileFromDirectory(file)
+            metridocScript = getRootScriptFromDirectory(file)
         }
         else {
             def jobDir = getJobDir(shortJobName)
             addDirectoryResourcesToClassPath(loader, jobDir)
-            metridocScript = getFileFromDirectory(jobDir, shortJobName)
+            metridocScript = getRootScriptFromDirectory(jobDir, shortJobName)
         }
 
         def binding = new Binding()
@@ -103,32 +103,46 @@ class MetridocMain {
     }
 
     @SuppressWarnings("GrMethodMayBeStatic")
-    protected File getFileFromDirectory(File file, String shortName = null) {
+    protected File getRootScriptFromDirectory(File directory, String shortName = null) {
         if(shortName == null) {
-            shortName = getShortName(file.name)
+            shortName = getShortName(directory.name)
         }
 
         def response
 
-        response = new File(file, "metridoc.groovy")
-        if(response.exists()) return response
-        response = new File(file, "${shortName}.groovy")
-        if(response.exists()) return response
+        response = getFileFromDirectory(directory, "metridoc.groovy")
+        if(response) return response
 
-        def groovyDir = new File(file, "src/main/groovy")
-        def resourcesDir = new File(file, "src/main/resources")
+        response = getFileFromDirectory(directory, "${shortName}.groovy")
+        if(response) return response
 
-        response = new File(groovyDir, "metridoc.groovy")
-        if(response.exists()) return response
-        response = new File(groovyDir, "${shortName}.groovy")
-        if(response.exists()) return response
+        return response
+    }
 
-        response = new File(resourcesDir, "metridoc.groovy")
-        if(response.exists()) return response
-        response = new File(resourcesDir, "${shortName}.groovy")
-        if(response.exists()) return response
+    protected static File getFileFromDirectory(File directory, String fileName) {
 
-        println "Could not find a root script [metridoc.groovy] or [${shortName}.groovy] in $file, $groovyDir, or $resourcesDir"
+        def response
+
+        response = new File(directory, fileName)
+        if(response.exists()) {
+            return response
+        }
+
+        def groovyDir = new File(directory, "src/main/groovy")
+        if(groovyDir.exists()) {
+            response = new File(groovyDir, fileName)
+            if(response.exists()) {
+                return response
+            }
+        }
+
+        def resourcesDir = new File(directory, "src/main/resources")
+        if(resourcesDir.exists()) {
+            response = new File(resourcesDir, fileName)
+            if(response.exists()) {
+                return response
+            }
+        }
 
         return null
     }
@@ -178,16 +192,28 @@ class MetridocMain {
         def arguments = options.arguments()
         File readme
         if(arguments[0] == "help" &&  arguments.size() > 1) {
-            def file = new File(arguments[1])
-            def parentDir
+            def jobName = arguments[1]
+            def file = new File(jobName)
+            def jobDir
             if (file.exists()) {
-                parentDir = file.parentFile
+                if (file.isFile()) {
+                    jobDir = file.parentFile
+                }
+                else {
+                    jobDir = file
+                }
             }
             else {
-                parentDir = getJobDir(arguments[1])
+                jobDir = getJobDir(arguments[1])
             }
-            readme = new File(parentDir, "README")
-            println readme.text
+
+            readme = getFileFromDirectory(jobDir, "README")
+            if (readme) {
+                println readme.text
+            }
+            else {
+                println "README does not exist for $jobName"
+            }
             return true
         }
 

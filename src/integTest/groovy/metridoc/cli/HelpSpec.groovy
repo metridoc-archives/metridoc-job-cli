@@ -57,4 +57,13 @@ class HelpSpec extends AbstractFunctionalSpec {
         cleanup:
         new File("${System.getProperty("user.home")}/.metridoc/jobs/metridoc-job-bar-0.1").deleteDir()
     }
+
+    void "test help for a directory based job"() {
+        when:
+        int exitCode = runCommand(["help", "src/test/testJobs/complexJob/metridoc-job-foo-0.1"])
+
+        then:
+        0 == exitCode
+        output.contains("complex foo's README")
+    }
 }
