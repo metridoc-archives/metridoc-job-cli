@@ -122,4 +122,13 @@ class MetridocMainSpec extends Specification {
         readme.exists()
         readme.text.contains("complex foo's README")
     }
+
+    void "any args using -D get pushed to system properties"() {
+        when:
+        new MetridocMain(args:["-Dfoo=bar", "-DfooBar"] as String[]).run() //it will print help
+
+        then:
+        "bar" == System.getProperty("foo")
+        System.getProperties().containsKey("fooBar")
+    }
 }

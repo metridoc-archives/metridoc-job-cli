@@ -24,6 +24,8 @@ class MetridocMain {
 
         def (OptionAccessor options, CliBuilder cli) = parseArgs()
 
+        setPropertyValues(options)
+
         if(doHelp(cli, options)) return
 
         if(doListJobs(options)) return
@@ -35,6 +37,23 @@ class MetridocMain {
         if(doInstall(options)) return
 
         return runJob(options)
+    }
+
+    static void setPropertyValues(OptionAccessor options) {
+        def commandLine = options.getInner()
+        def cliOptions = commandLine.options
+
+        cliOptions.each {
+            if("D" == it.opt) {
+                def values = it.values
+                if(values.size() == 1) {
+                    System.setProperty(values[0], "")
+                }
+                else {
+                    System.setProperty(values[0], values[1])
+                }
+            }
+        }
     }
 
     boolean doListJobs(OptionAccessor options) {
@@ -244,17 +263,18 @@ class MetridocMain {
 
     protected List parseArgs() {
         def cli = new CliBuilder(
-                usage: "mdoc [<command> | <job> | help | help <job>] [options]",
+                usage: "mdoc [<command> | <job> | help | help <job>] [job options]",
                 header: "\nGlobal Options:",
                 footer: "\nAvailable Commands:\n" +
                         " --> list-jobs                  lists all available jobs\n" +
                         " --> install <destination>      installs a job\n" +
-                        " --> help [job name]            prints README of job, or this message job name is blank\n" +
+                        " --> help [job name]            prints README of job, or this message\n" +
                         " --> install-deps               installs dependencies if they are not there"
         )
 
         cli.help("prints this message")
         cli.stacktrace("prints full stacktrace on error")
+        cli.D(args:2, valueSeparator:'=', argName:'property=value', 'sets jvm system property')
         def options = cli.parse(args)
         [options, cli]
     }
@@ -351,7 +371,6 @@ class MetridocMain {
     private static boolean dependenciesExist() {
         dependenciesExistHelper("org.springframework.context.ApplicationContext")
     }
-
 
     private static boolean dependenciesExistHelper(String className) {
         try {
