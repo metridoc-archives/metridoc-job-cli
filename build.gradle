@@ -55,9 +55,9 @@ repositories {
 
 dependencies {
     compile 'org.codehaus.groovy:groovy-all:2.0.8', 'org.apache.commons:commons-compress:1.5',
-            'commons-cli:commons-cli:1.2'
+            'commons-cli:commons-cli:1.2', 'org.slf4j:slf4j-simple:1.7.5'
 
-    provided 'com.github.metridoc:metridoc-tool-gorm:0.1'
+    provided 'com.github.metridoc:metridoc-tool-gorm:0.1', 'com.github.metridoc:metridoc-job-core:0.7.3'
 
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 

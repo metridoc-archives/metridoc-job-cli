@@ -97,9 +97,11 @@ class MetridocMain {
         }
 
         def binding = new Binding()
+        println args
         binding.args = [] as String[]
-        if(args.size() > 2) {
-            def jobArgs = args[2..args.size() - 1] as String[]
+        //first arg is the job name
+        if(args.size() > 1) {
+            def jobArgs = args[1..args.size() - 1] as String[]
             binding.args = jobArgs
         }
 
