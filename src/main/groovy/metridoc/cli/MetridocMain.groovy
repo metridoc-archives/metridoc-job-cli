@@ -77,7 +77,8 @@ class MetridocMain {
 
     @SuppressWarnings("GroovyAccessibility")
     def protected runJob(OptionAccessor options) {
-        def shortJobName = options.arguments()[0]
+        def arguments = options.arguments()
+        def shortJobName = arguments[0]
         def file = new File(shortJobName)
         File metridocScript
         def loader = findHighestLevelClassLoader()
@@ -97,11 +98,11 @@ class MetridocMain {
         }
 
         def binding = new Binding()
-        println args
+
         binding.args = [] as String[]
         //first arg is the job name
-        if(args.size() > 1) {
-            def jobArgs = args[1..args.size() - 1] as String[]
+        if(arguments.size() > 1) {
+            def jobArgs = arguments[1..arguments.size() - 1] as String[]
             binding.args = jobArgs
         }
 
