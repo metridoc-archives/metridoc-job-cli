@@ -66,4 +66,14 @@ class HelpSpec extends AbstractFunctionalSpec {
         0 == exitCode
         output.contains("complex foo's README")
     }
+
+    void "when standard help is displayed there is a new line above and below the message"() {
+        when:
+        int exitCode = runCommand([])
+
+        then:
+        0 == exitCode
+        output.startsWith("\n")
+        output.endsWith("\n")
+    }
 }
