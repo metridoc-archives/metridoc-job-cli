@@ -32,7 +32,7 @@ class AbstractFunctionalSpec extends Specification {
         // the form VAR=value.
         def envp = env.collect { key, value -> key + "=" + value }
 
-        Process process = (["${mdocInstallDir}/bin/mdoc", "--stacktrace"] + cmdList).execute(envp,
+        Process process = (["${mdocInstallDir}/bin/mdoc"] + cmdList).execute(envp,
                 new File(baseWorkDir))
 
         if (inputs) {
