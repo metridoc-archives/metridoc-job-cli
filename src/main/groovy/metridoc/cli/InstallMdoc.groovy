@@ -104,7 +104,6 @@ while(!(classLoader instanceof URLClassLoader)) {
 
 destination.eachFile {
     if(!currentLibs.contains(it.name)) {
-        println "adding $it.name to classpath"
         classLoader.addURL(it.toURI().toURL())
     }
 }
