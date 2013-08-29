@@ -23,20 +23,31 @@ class MetridocMain {
     def run() {
 
         def (OptionAccessor options, CliBuilder cli) = parseArgs()
+        try {
 
-        setPropertyValues(options)
+            setPropertyValues(options)
 
-        if (doHelp(cli, options)) return
+            if (doHelp(cli, options)) return
 
-        if (doListJobs(options)) return
+            if (doListJobs(options)) return
 
-        checkForAndInstallDependencies(options)
+            checkForAndInstallDependencies(options)
 
-        if (doInstallDeps(options)) return
+            if (doInstallDeps(options)) return
 
-        if (doInstall(options)) return
+            if (doInstall(options)) return
 
-        return runJob(options)
+            return runJob(options)
+        }
+        catch (Throwable ignored) {
+            if(options.stacktrace) {
+                throw ignored //just rethrow it
+            }
+            println ""
+            System.err.println("ERROR: $ignored.message")
+            println ""
+            System.exit(1)
+        }
     }
 
     static void setPropertyValues(OptionAccessor options) {
