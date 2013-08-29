@@ -240,6 +240,7 @@ class MetridocMain {
         }
 
         if(askingForHelp(options)) {
+            println ""
             cli.usage()
             println ""
             return true
