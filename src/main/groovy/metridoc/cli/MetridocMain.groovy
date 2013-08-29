@@ -59,8 +59,17 @@ class MetridocMain {
     boolean doListJobs(OptionAccessor options) {
         def cliArgs = options.arguments()
         if("list-jobs" == cliArgs[0]) {
-            println "Available Jobs:"
-            new File(jobPath).eachFile(FileType.DIRECTORIES) {
+            def jobDir = new File(jobPath)
+            println ""
+
+            if(jobDir.listFiles()) {
+                println "Available Jobs:"
+            }
+            else {
+                println "No jobs have been installed"
+            }
+
+            jobDir.eachFile(FileType.DIRECTORIES) {
                 def m = it.name =~ /metridoc-job-(\w+)-(.+)/
                 if(m.matches()) {
                     def name = m.group(1)
@@ -68,6 +77,7 @@ class MetridocMain {
                     println " --> $name (v$version)"
                 }
             }
+            println ""
 
             return true
         }
@@ -359,21 +369,28 @@ class MetridocMain {
             assert fileToInstall.exists() : "$fileToInstall does not exist"
         }
 
-        fileToInstall.withInputStream { inputStream ->
-            file.newOutputStream() << inputStream
-        }
+        if (fileToInstall.isFile() && fileToInstall.name.endsWith(".zip") && fileToInstall.exists()) {
+            fileToInstall.withInputStream { inputStream ->
+                file.newOutputStream() << inputStream
+            }
 
-        ArchiveMethods.unzip(file, jobPathDir)
-        def filesToDelete = []
+            ArchiveMethods.unzip(file, jobPathDir)
+            def filesToDelete = []
 
-        jobPathDir.eachFile {
-            if(it.isFile() && it.name.endsWith(".zip")) {
-                filesToDelete << it
+            jobPathDir.eachFile {
+                if(it.isFile() && it.name.endsWith(".zip")) {
+                    filesToDelete << it
+                }
+            }
+
+            filesToDelete.each {
+                it.delete()
             }
         }
-
-        filesToDelete.each {
-            it.delete()
+        else {
+            println ""
+            println "Cannot install $fileToInstall either it doesn't exist or it is not a zip file"
+            println ""
         }
     }
 
