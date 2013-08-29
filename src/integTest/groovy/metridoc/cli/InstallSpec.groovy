@@ -7,6 +7,7 @@ class InstallSpec extends AbstractFunctionalSpec {
 
     def bar1 = new File("${System.getProperty("user.home")}/.metridoc/jobs/metridoc-job-bar-0.1")
     def bar2 = new File("${System.getProperty("user.home")}/.metridoc/jobs/metridoc-job-bar-0.2")
+    def simpleJob = new File("${System.getProperty("user.home")}/.metridoc/jobs/metridoc-job-simpleJob")
 
     void "test install job"() {
         when:
@@ -27,5 +28,32 @@ class InstallSpec extends AbstractFunctionalSpec {
         cleanup:
         bar1.deleteDir()
         bar2.deleteDir()
+    }
+
+    void "test installing a directory"() {
+        when:
+        int exitCode = runCommand(["install", "src/test/testJobs/simpleJob"])
+
+        then:
+        0 == exitCode
+        simpleJob.exists()
+
+        when: "installing it again"
+        exitCode = runCommand(["install", "src/test/testJobs/simpleJob"])
+
+        then: "old one should be deleted, new one installed"
+        output.contains("deleting metridoc-job-simpleJob and installing")
+        0 == exitCode
+        simpleJob.exists()
+
+        when:
+        exitCode = runCommand(["--stacktrace", "simpleJob"])
+
+        then:
+        0 == exitCode
+        output.contains("foo ran")
+
+        cleanup:
+        simpleJob.deleteDir()
     }
 }
