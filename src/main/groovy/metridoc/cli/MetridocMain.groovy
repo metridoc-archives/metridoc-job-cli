@@ -26,15 +26,15 @@ class MetridocMain {
 
         setPropertyValues(options)
 
-        if(doHelp(cli, options)) return
+        if (doHelp(cli, options)) return
 
-        if(doListJobs(options)) return
+        if (doListJobs(options)) return
 
         checkForAndInstallDependencies(options)
 
-        if(doInstallDeps(options)) return
+        if (doInstallDeps(options)) return
 
-        if(doInstall(options)) return
+        if (doInstall(options)) return
 
         return runJob(options)
     }
@@ -44,9 +44,9 @@ class MetridocMain {
         def cliOptions = commandLine.options
 
         cliOptions.each {
-            if("D" == it.opt) {
+            if ("D" == it.opt) {
                 def values = it.values
-                if(values.size() == 1) {
+                if (values.size() == 1) {
                     System.setProperty(values[0], "")
                 }
                 else {
@@ -58,16 +58,26 @@ class MetridocMain {
 
     boolean doListJobs(OptionAccessor options) {
         def cliArgs = options.arguments()
-        if("list-jobs" == cliArgs[0]) {
-            println "Available Jobs:"
-            new File(jobPath).eachFile(FileType.DIRECTORIES) {
+        if ("list-jobs" == cliArgs[0]) {
+            def jobDir = new File(jobPath)
+            println ""
+
+            if (jobDir.listFiles()) {
+                println "Available Jobs:"
+            }
+            else {
+                println "No jobs have been installed"
+            }
+
+            jobDir.eachFile(FileType.DIRECTORIES) {
                 def m = it.name =~ /metridoc-job-(\w+)-(.+)/
-                if(m.matches()) {
+                if (m.matches()) {
                     def name = m.group(1)
                     def version = m.group(2)
                     println " --> $name (v$version)"
                 }
             }
+            println ""
 
             return true
         }
@@ -101,23 +111,23 @@ class MetridocMain {
 
         binding.args = [] as String[]
         //first arg is the job name
-        if(arguments.size() > 1) {
+        if (arguments.size() > 1) {
             def jobArgs = arguments[1..arguments.size() - 1] as String[]
             binding.args = jobArgs
         }
 
-        assert metridocScript && metridocScript.exists() : "root script does not exist"
+        assert metridocScript && metridocScript.exists(): "root script does not exist"
         return new GroovyShell(Thread.currentThread().contextClassLoader, binding).evaluate(metridocScript)
     }
 
     @SuppressWarnings(["GrMethodMayBeStatic", "GroovyAccessibility"])
     protected void addDirectoryResourcesToClassPath(URLClassLoader loader, File file) {
         def resourceDir = new File(file, "src/main/resources")
-        if(resourceDir.exists()) {
+        if (resourceDir.exists()) {
             loader.addURL(resourceDir.toURI().toURL())
         }
         def groovyDir = new File(file, "src/main/groovy")
-        if(groovyDir.exists()) {
+        if (groovyDir.exists()) {
             loader.addURL(groovyDir.toURI().toURL())
         }
 
@@ -126,17 +136,17 @@ class MetridocMain {
 
     @SuppressWarnings("GrMethodMayBeStatic")
     protected File getRootScriptFromDirectory(File directory, String shortName = null) {
-        if(shortName == null) {
+        if (shortName == null) {
             shortName = getShortName(directory.name)
         }
 
         def response
 
         response = getFileFromDirectory(directory, "metridoc.groovy")
-        if(response) return response
+        if (response) return response
 
         response = getFileFromDirectory(directory, "${shortName}.groovy")
-        if(response) return response
+        if (response) return response
 
         return response
     }
@@ -146,22 +156,22 @@ class MetridocMain {
         def response
 
         response = new File(directory, fileName)
-        if(response.exists()) {
+        if (response.exists()) {
             return response
         }
 
         def groovyDir = new File(directory, "src/main/groovy")
-        if(groovyDir.exists()) {
+        if (groovyDir.exists()) {
             response = new File(groovyDir, fileName)
-            if(response.exists()) {
+            if (response.exists()) {
                 return response
             }
         }
 
         def resourcesDir = new File(directory, "src/main/resources")
-        if(resourcesDir.exists()) {
+        if (resourcesDir.exists()) {
             response = new File(resourcesDir, fileName)
-            if(response.exists()) {
+            if (response.exists()) {
                 return response
             }
         }
@@ -170,10 +180,10 @@ class MetridocMain {
     }
 
     protected static String getShortName(String longJobName) {
-        if(longJobName.startsWith(LONG_JOB_PREFIX)) {
+        if (longJobName.startsWith(LONG_JOB_PREFIX)) {
             def shortName = longJobName.substring(LONG_JOB_PREFIX.size())
             def index = shortName.lastIndexOf("-")
-            if(index != -1) {
+            if (index != -1) {
                 return shortName.substring(0, index)
             }
 
@@ -186,7 +196,7 @@ class MetridocMain {
         def cliArgs = options.arguments()
 
         def command = cliArgs[0]
-        if(command == "install") {
+        if (command == "install") {
             assert cliArgs.size() == 2: "when installing a job, [install] requires a location"
             installJob(cliArgs[1])
             return true
@@ -197,12 +207,12 @@ class MetridocMain {
 
     protected File getJobDir(String jobName) {
         def fullJobName = jobName
-        if(!fullJobName.startsWith("metridoc-job-")) {
+        if (!fullJobName.startsWith("metridoc-job-")) {
             fullJobName = "metridoc-job-$jobName"
         }
         File jobDir = null
         new File(jobPath).eachFile(FileType.DIRECTORIES) {
-            if(it.name.startsWith(fullJobName)) {
+            if (it.name.startsWith(fullJobName)) {
                 jobDir = it
             }
         }
@@ -213,7 +223,7 @@ class MetridocMain {
     protected boolean doHelp(CliBuilder cli, OptionAccessor options) {
         def arguments = options.arguments()
         File readme
-        if(arguments[0] == "help" &&  arguments.size() > 1) {
+        if (arguments[0] == "help" && arguments.size() > 1) {
             def jobName = arguments[1]
             def file = new File(jobName)
             def jobDir
@@ -239,7 +249,7 @@ class MetridocMain {
             return true
         }
 
-        if(askingForHelp(options)) {
+        if (askingForHelp(options)) {
             println ""
             cli.usage()
             println ""
@@ -258,9 +268,9 @@ class MetridocMain {
 
     protected void checkForAndInstallDependencies(OptionAccessor options) {
         if (!dependenciesExist()) {
-            new InstallMdoc(binding: new Binding(args:args)).run()
+            new InstallMdoc(binding: new Binding(args: args)).run()
         }
-        else if(doInstallDeps(options)) {
+        else if (doInstallDeps(options)) {
             println "Dependencies have already been installed"
         }
     }
@@ -283,7 +293,7 @@ class MetridocMain {
 
         cli.help("prints this message")
         cli.stacktrace("prints full stacktrace on error")
-        cli.D(args:2, valueSeparator:'=', argName:'property=value', 'sets jvm system property')
+        cli.D(args: 2, valueSeparator: '=', argName: 'property=value', 'sets jvm system property')
         def options = cli.parse(args)
         [options, cli]
     }
@@ -322,7 +332,7 @@ class MetridocMain {
     static void addJarsFromDirectory(URLClassLoader classloader, File directory) {
         if (directory.exists() && directory.isDirectory()) {
             directory.eachFile(FileType.FILES) {
-                if(it.name.endsWith(".jar")) {
+                if (it.name.endsWith(".jar")) {
                     classloader.addURL(it.toURI().toURL())
                 }
             }
@@ -333,17 +343,17 @@ class MetridocMain {
         def index = url.lastIndexOf("/")
         def fileName = url.substring(index + 1)
         def jobPathDir = new File("$jobPath")
-        if(!jobPathDir.exists()) {
+        if (!jobPathDir.exists()) {
             jobPathDir.mkdirs()
         }
 
         def m = fileName =~ /(metridoc-job-\w+)-[0-9]/
-        if(m.lookingAt()) {
+        if (m.lookingAt()) {
             jobPathDir.eachFile(FileType.DIRECTORIES) {
                 def unversionedName = m.group(1)
-                if(it.name.startsWith(unversionedName)) {
+                if (it.name.startsWith(unversionedName)) {
                     println "deleting $it and installing $fileName"
-                    assert it.deleteDir() : "Could not delete $it"
+                    assert it.deleteDir(): "Could not delete $it"
                 }
             }
         }
@@ -356,7 +366,13 @@ class MetridocMain {
         }
         catch (Throwable ignored) {
             fileToInstall = new File(url)
-            assert fileToInstall.exists() : "$fileToInstall does not exist"
+            def supported = fileToInstall.exists() && fileToInstall.isFile() && fileToInstall.name.endsWith(".zip")
+            if (!supported) {
+                println ""
+                println "$fileToInstall is not a zip file"
+                println ""
+                return
+            }
         }
 
         fileToInstall.withInputStream { inputStream ->
@@ -367,7 +383,7 @@ class MetridocMain {
         def filesToDelete = []
 
         jobPathDir.eachFile {
-            if(it.isFile() && it.name.endsWith(".zip")) {
+            if (it.isFile() && it.name.endsWith(".zip")) {
                 filesToDelete << it
             }
         }
