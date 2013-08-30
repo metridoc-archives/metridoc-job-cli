@@ -1,6 +1,6 @@
 import foo.bar.Foo
 
-//make sure foo is on the classpath
+println "foo ran"
 new Foo()
 
 return "foo ran"

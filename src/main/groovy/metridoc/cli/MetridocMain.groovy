@@ -2,6 +2,7 @@ package metridoc.cli
 
 import groovy.io.FileType
 import metridoc.utils.ArchiveMethods
+import org.apache.commons.io.FileUtils
 
 /**
  * Created with IntelliJ IDEA on 8/5/13
@@ -353,23 +354,27 @@ class MetridocMain {
     void installJob(String url) {
         def index = url.lastIndexOf("/")
         def fileName = url.substring(index + 1)
+        def destinationName = fileName
+        if(!fileName.startsWith(LONG_JOB_PREFIX)) {
+            destinationName = "$LONG_JOB_PREFIX$fileName"
+        }
         def jobPathDir = new File("$jobPath")
         if (!jobPathDir.exists()) {
             jobPathDir.mkdirs()
         }
 
-        def m = fileName =~ /(metridoc-job-\w+)-[0-9]/
+        def m = destinationName =~ /(metridoc-job-\w+)(-v?[0-9])?/
         if (m.lookingAt()) {
             jobPathDir.eachFile(FileType.DIRECTORIES) {
                 def unversionedName = m.group(1)
                 if (it.name.startsWith(unversionedName)) {
-                    println "deleting $it and installing $fileName"
+                    println "deleting $it.name and installing $destinationName"
                     assert it.deleteDir(): "Could not delete $it"
                 }
             }
         }
 
-        def file = new File(jobPathDir, fileName)
+        def destination = new File(jobPathDir, destinationName)
         def fileToInstall
 
         try {
@@ -377,20 +382,25 @@ class MetridocMain {
         }
         catch (Throwable ignored) {
             fileToInstall = new File(url)
+            if(fileToInstall.exists() && fileToInstall.isDirectory()) {
+                installDirectoryJob(fileToInstall, destination)
+                return
+            }
+
             def supported = fileToInstall.exists() && fileToInstall.isFile() && fileToInstall.name.endsWith(".zip")
             if (!supported) {
                 println ""
                 println "$fileToInstall is not a zip file"
                 println ""
-                return
+                System.exit(2)
             }
         }
 
         fileToInstall.withInputStream { inputStream ->
-            file.newOutputStream() << inputStream
+            destination.newOutputStream() << inputStream
         }
 
-        ArchiveMethods.unzip(file, jobPathDir)
+        ArchiveMethods.unzip(destination, jobPathDir)
         def filesToDelete = []
 
         jobPathDir.eachFile {
@@ -402,6 +412,10 @@ class MetridocMain {
         filesToDelete.each {
             it.delete()
         }
+    }
+
+    private static void installDirectoryJob(File file, File destination) {
+        FileUtils.copyDirectory(file, destination)
     }
 
     private static boolean dependenciesExist() {
