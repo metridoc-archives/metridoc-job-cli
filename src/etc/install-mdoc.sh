@@ -42,8 +42,15 @@ echo ""
 
 MDOC_BIN="$INSTALL_DIR/metridoc-job-cli/build/install/mdoc/bin"
 if ! grep -q metridoc-job-cli "$HOME/.bash_profile"; then
+    echo "\n" >> "$HOME/.bash_profile"
     echo "export PATH=$MDOC_BIN:\$PATH" >> "$HOME/.bash_profile"
 fi
+
+if ! grep -q metridoc-job-cli "$HOME/.bashrc"; then
+    echo "\n" >> "$HOME/.bashrc"
+    echo "export PATH=$MDOC_BIN:\$PATH" >> "$HOME/.bashrc"
+fi
+
 cd "$MDOC_BIN"
 ./mdoc install-deps
 
