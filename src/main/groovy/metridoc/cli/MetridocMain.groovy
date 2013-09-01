@@ -354,9 +354,14 @@ class MetridocMain {
         }
     }
 
-    void installJob(String url) {
-        def index = url.lastIndexOf("/")
-        def fileName = url.substring(index + 1)
+    void installJob(String urlOrPath) {
+        def file = new File(urlOrPath)
+        def index = urlOrPath.lastIndexOf("/")
+        if(file.exists()) {
+            urlOrPath = file.canonicalPath
+            index = urlOrPath.lastIndexOf(SystemUtils.FILE_SEPARATOR)
+        }
+        def fileName = urlOrPath.substring(index + 1)
         def destinationName = fileName
         if(!fileName.startsWith(LONG_JOB_PREFIX)) {
             destinationName = "$LONG_JOB_PREFIX$fileName"
@@ -381,10 +386,10 @@ class MetridocMain {
         def fileToInstall
 
         try {
-            fileToInstall = new URL(url)
+            fileToInstall = new URL(urlOrPath)
         }
         catch (Throwable ignored) {
-            fileToInstall = new File(url)
+            fileToInstall = new File(urlOrPath)
             if(fileToInstall.exists() && fileToInstall.isDirectory()) {
                 installDirectoryJob(fileToInstall, destination)
                 return

@@ -56,4 +56,25 @@ class InstallSpec extends AbstractFunctionalSpec {
         cleanup:
         simpleJob.deleteDir()
     }
+
+    void "test installing from the current directory"() {
+        given:
+        baseWorkDir = "src/test/testJobs/complexJob/metridoc-job-foo-0.1"
+
+        when:
+        int exitCode = runCommand(["install", "."])
+
+        then:
+        0 == exitCode
+
+        when:
+        exitCode = runCommand(["foo"])
+
+        then:
+        0 == exitCode
+        output.contains("complex foo ran")
+
+        cleanup:
+        baseWorkDir = System.getProperty("user.dir")
+    }
 }
