@@ -3,6 +3,7 @@ package metridoc.cli
 import groovy.io.FileType
 import metridoc.utils.ArchiveMethods
 import org.apache.commons.io.FileUtils
+import org.apache.commons.lang.SystemUtils
 
 /**
  * Created with IntelliJ IDEA on 8/5/13
@@ -149,7 +150,9 @@ class MetridocMain {
     @SuppressWarnings("GrMethodMayBeStatic")
     protected File getRootScriptFromDirectory(File directory, String shortName = null) {
         if (shortName == null) {
-            shortName = getShortName(directory.name)
+            def path = directory.canonicalPath
+            def index = path.lastIndexOf(SystemUtils.FILE_SEPARATOR)
+            shortName = getShortName(path.substring(index + 1))
         }
 
         def response

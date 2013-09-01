@@ -13,7 +13,7 @@ class AbstractFunctionalSpec extends Specification {
 
     protected processOutput = new StringBuilder()
 
-    protected final baseWorkDir = System.getProperty("user.dir")
+    protected baseWorkDir = System.getProperty("user.dir")
 
     protected final env = [:]
 

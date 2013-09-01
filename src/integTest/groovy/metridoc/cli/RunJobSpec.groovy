@@ -42,4 +42,20 @@ class RunJobSpec extends AbstractFunctionalSpec {
         0 == exitCode
         output.contains("bar has args [foo, bar]")
     }
+
+    void "run a job in a directory with non standard root script when in the same directory"() {
+
+        setup:
+        baseWorkDir = "src/test/testJobs/complexJob/metridoc-job-foo-0.1"
+
+        when:
+        int exitCode = runCommand(["."])
+
+        then:
+        0 == exitCode
+        output.contains("complex foo ran")
+
+        cleanup:
+        baseWorkDir = System.getProperty("user.dir")
+    }
 }
