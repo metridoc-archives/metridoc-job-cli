@@ -12,7 +12,7 @@ fi
 
 if [[ -d $INSTALL_DIR ]];
 then
-    if grep -q $MDOC_VERSION $INSTALL_DIR/metridoc-job-cli/src/main/resources/MDOC_VERSION; then
+    if grep -qF $MDOC_VERSION $INSTALL_DIR/metridoc-job-cli/src/main/resources/MDOC_VERSION; then
         echo "mdoc is up to date with version $MDOC_VERSION"
         exit 0
     fi
