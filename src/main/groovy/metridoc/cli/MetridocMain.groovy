@@ -1,9 +1,12 @@
 package metridoc.cli
 
 import groovy.io.FileType
+import metridoc.core.MetridocScript
+import metridoc.core.tools.SimpleLogTool
 import metridoc.utils.ArchiveMethods
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang.SystemUtils
+import org.slf4j.LoggerFactory
 
 /**
  * Created with IntelliJ IDEA on 8/5/13
@@ -111,12 +114,12 @@ class MetridocMain {
             metridocScript = file
         }
         else if (file.isDirectory()) {
-            addDirectoryResourcesToClassPath(loader, file)
+            addDirectoryResourcesToClassPath(this.class.classLoader, file)
             metridocScript = getRootScriptFromDirectory(file)
         }
         else {
             def jobDir = getJobDir(shortJobName)
-            addDirectoryResourcesToClassPath(loader, jobDir)
+            addDirectoryResourcesToClassPath(this.class.classLoader, jobDir)
             metridocScript = getRootScriptFromDirectory(jobDir, shortJobName)
         }
 
@@ -130,7 +133,54 @@ class MetridocMain {
         }
 
         assert metridocScript && metridocScript.exists(): "root script does not exist"
-        return new GroovyShell(Thread.currentThread().contextClassLoader, binding).evaluate(metridocScript)
+        def thread = Thread.currentThread()
+        setupLogging(options)
+        def shell = new GroovyShell(thread.contextClassLoader, binding)
+        thread.contextClassLoader = shell.classLoader
+        def log = LoggerFactory.getLogger(this.getClass())
+        log.info "Running $metridocScript at ${new Date()}"
+        def response = null
+        def throwable
+        try {
+            response = shell.evaluate(metridocScript)
+        }
+        catch (Throwable badExecution) {
+            throwable = badExecution
+        }
+        log.info "Finished running $metridocScript at ${new Date()}"
+        if(throwable) throw throwable
+        return response
+    }
+
+    @SuppressWarnings("GrMethodMayBeStatic")
+    protected void setupLogging(OptionAccessor options) {
+        def simpleLoggerClass
+        try {
+            simpleLoggerClass = Thread.currentThread().contextClassLoader.loadClass("org.slf4j.impl.SimpleLogger")
+        }
+        catch (ClassNotFoundException ignored) {
+            System.err.println("Could not find SimpleLogger on the classpath, [SimpleLogger] will not be initialized")
+            return
+        }
+
+        String SHOW_THREAD_NAME_KEY = simpleLoggerClass.SHOW_THREAD_NAME_KEY
+        String SHOW_LOG_NAME_KEY = simpleLoggerClass.SHOW_THREAD_NAME_KEY
+        String SHOW_DATE_TIME_KEY = simpleLoggerClass.SHOW_DATE_TIME_KEY
+
+        if(options.logLevel) {
+            System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", options.logLevel)
+        }
+        else {
+            System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "error")
+            System.setProperty("org.slf4j.simpleLogger.log.metridoc", "info")
+        }
+
+        System.setProperty(SHOW_DATE_TIME_KEY, "true")
+
+        if(!options.logLineExt) {
+            System.setProperty(SHOW_THREAD_NAME_KEY, "false")
+            System.setProperty(SHOW_LOG_NAME_KEY, "false")
+        }
     }
 
     @SuppressWarnings(["GrMethodMayBeStatic", "GroovyAccessibility"])
@@ -309,6 +359,8 @@ class MetridocMain {
         cli.help("prints this message")
         cli.stacktrace("prints full stacktrace on error")
         cli.D(args: 2, valueSeparator: '=', argName: 'property=value', 'sets jvm system property')
+        cli.logLevel(args: 1, argName: 'level', 'sets log level (info, error, etc.)')
+        cli.logLineExt("make the log line more verbose")
         def options = cli.parse(args)
         [options, cli]
     }
