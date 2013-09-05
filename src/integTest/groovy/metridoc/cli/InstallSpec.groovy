@@ -7,7 +7,9 @@ class InstallSpec extends AbstractFunctionalSpec {
 
     def bar1 = new File("${System.getProperty("user.home")}/.metridoc/jobs/metridoc-job-bar-0.1")
     def bar2 = new File("${System.getProperty("user.home")}/.metridoc/jobs/metridoc-job-bar-0.2")
-    def simpleJob = new File("${System.getProperty("user.home")}/.metridoc/jobs/metridoc-job-simpleJob")
+    def simpleJobUnversioned = new File("${System.getProperty("user.home")}/.metridoc/jobs/metridoc-job-simpleJob")
+    def simpleJobVersioned = new File("${System.getProperty("user.home")}/" +
+            ".metridoc/jobs/metridoc-job-simpleJob-master")
 
     void "test install job"() {
         when:
@@ -36,7 +38,7 @@ class InstallSpec extends AbstractFunctionalSpec {
 
         then:
         0 == exitCode
-        simpleJob.exists()
+        simpleJobUnversioned.exists()
 
         when: "installing it again"
         exitCode = runCommand(["install", "src/test/testJobs/simpleJob"])
@@ -44,7 +46,7 @@ class InstallSpec extends AbstractFunctionalSpec {
         then: "old one should be deleted, new one installed"
         output.contains("deleting metridoc-job-simpleJob and installing")
         0 == exitCode
-        simpleJob.exists()
+        simpleJobUnversioned.exists()
 
         when:
         exitCode = runCommand(["--stacktrace", "simpleJob"])
@@ -54,7 +56,7 @@ class InstallSpec extends AbstractFunctionalSpec {
         output.contains("foo ran")
 
         cleanup:
-        simpleJob.deleteDir()
+        simpleJobUnversioned.deleteDir()
     }
 
     void "test installing from the current directory"() {
@@ -76,5 +78,27 @@ class InstallSpec extends AbstractFunctionalSpec {
 
         cleanup:
         baseWorkDir = System.getProperty("user.dir")
+    }
+
+    void "versioned and unversioned jobs should overrite each other"() {
+        when:
+        int exitCode = runCommand(["install", "src/test/testJobs/simpleJob"])
+
+        then:
+        0 == exitCode
+        simpleJobUnversioned.exists()
+        !simpleJobVersioned.exists()
+
+        when:
+        exitCode = runCommand(["install", "src/test/testJobs/simpleJob-master"])
+
+        then:
+        0 == exitCode
+        !simpleJobUnversioned.exists()
+        simpleJobVersioned.exists()
+
+        cleanup:
+        simpleJobUnversioned.deleteDir()
+        simpleJobVersioned.deleteDir()
     }
 }
