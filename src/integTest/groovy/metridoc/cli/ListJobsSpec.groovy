@@ -25,5 +25,9 @@ class ListJobsSpec extends AbstractFunctionalSpec {
         0 == exitCode
         output.contains("Available Jobs:")
         output.contains(" --> simpleJob")
+
+        cleanup:
+        def home = System.getProperty("user.home")
+        new File("$home/.metridoc/jobs/metridoc-job-simpleJob").deleteDir()
     }
 }
