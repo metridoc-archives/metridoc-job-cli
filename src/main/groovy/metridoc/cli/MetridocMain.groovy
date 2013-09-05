@@ -92,6 +92,11 @@ class MetridocMain {
                     def version = m.group(2)
                     println " --> $name (v$version)"
                 }
+                m = it.name =~ /metridoc-job-(\w+)/
+                if(m.matches()) {
+                    def name = m.group(1)
+                    println " --> $name"
+                }
             }
             println ""
 

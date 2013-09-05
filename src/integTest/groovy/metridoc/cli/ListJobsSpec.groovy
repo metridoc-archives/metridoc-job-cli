@@ -15,4 +15,15 @@ class ListJobsSpec extends AbstractFunctionalSpec {
         output.contains("Available Jobs:")
         output.contains(" --> bar (v0.1)")
     }
+
+    void "test installing a job with no version"() {
+        when:
+        runCommand(["install", "src/test/testJobs/simpleJob"])
+        int exitCode = runCommand(["list-jobs"])
+
+        then:
+        0 == exitCode
+        output.contains("Available Jobs:")
+        output.contains(" --> simpleJob")
+    }
 }
