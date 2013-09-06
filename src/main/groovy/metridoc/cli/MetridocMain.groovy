@@ -287,6 +287,13 @@ class MetridocMain {
             }
         }
 
+        if(!jobDir) {
+            println ""
+            println "[$jobName] is not a recognized job"
+            println ""
+            System.exit(3)
+        }
+
         return jobDir
     }
 
