@@ -58,4 +58,13 @@ class RunJobSpec extends AbstractFunctionalSpec {
         cleanup:
         baseWorkDir = System.getProperty("user.dir")
     }
+
+    void "a bad job name should return a reasonable message"() {
+        when:
+        int exitCode = runCommand(["--stacktrace", "asdasd"])
+
+        then:
+        3 == exitCode
+        output.contains("[asdasd] is not a recognized job")
+    }
 }
