@@ -76,4 +76,13 @@ class HelpSpec extends AbstractFunctionalSpec {
         output.startsWith("\n")
         output.endsWith("\n")
     }
+
+    void "help on a bad job name should return a reasonable error message"() {
+        when:
+        int exitCode = runCommand(["help", "asdasd"])
+
+        then:
+        3 == exitCode
+        output.contains("[asdasd] is not a recognized job")
+    }
 }
