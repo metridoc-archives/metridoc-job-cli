@@ -44,7 +44,6 @@ project.ext {
 
 repositories {
     mavenCentral()
-    mavenLocal()
     maven {
         url "http://jcenter.bintray.com/"
     }
@@ -54,10 +53,12 @@ repositories {
 }
 
 dependencies {
+    //core libraries that are required to get the cli up and running
     compile 'org.codehaus.groovy:groovy-all:2.0.8', 'org.apache.commons:commons-compress:1.5',
             'commons-cli:commons-cli:1.2', 'org.slf4j:slf4j-simple:1.7.5'
 
-    provided 'com.github.metridoc:metridoc-tool-gorm:0.2'
+    //metridoc
+    provided 'com.github.metridoc:metridoc-tool-gorm:0.2.2'
 
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 
@@ -87,7 +88,7 @@ if (!project.version.toString().endsWith("SNAPSHOT")) {
     compileGroovy.dependsOn addVersion
 }
 
-task copyDependenciesToLib(type: Copy) {
+task copyDependenciesToLib(type: Copy, dependsOn: ["installApp"]) {
     def destination = "$buildDir/install/$applicationName/lib"
     if(project.hasProperty("dependenciesDestination")) {
         destination = project.dependenciesDestination
@@ -97,7 +98,7 @@ task copyDependenciesToLib(type: Copy) {
 }
 
 //for a single test, you can run "gradle -DintegTests.single=<test name>"
-task integTests(type: Test, dependsOn: ["installApp"]) {
+task integTests(type: Test, dependsOn: ["copyDependenciesToLib"]) {
 
     testClassesDir = sourceSets.integTest.output.classesDir
     classpath = sourceSets.integTest.runtimeClasspath
