@@ -44,6 +44,7 @@ project.ext {
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven {
         url "http://jcenter.bintray.com/"
     }
@@ -58,7 +59,7 @@ dependencies {
             'commons-cli:commons-cli:1.2', 'org.slf4j:slf4j-simple:1.7.5'
 
     //metridoc
-    provided 'com.github.metridoc:metridoc-tool-gorm:0.2.2'
+    provided 'com.github.metridoc:metridoc-tool-gorm:0.2.3'
 
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 

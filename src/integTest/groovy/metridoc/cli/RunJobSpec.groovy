@@ -18,7 +18,7 @@ class RunJobSpec extends AbstractFunctionalSpec {
 
     void "test running a script"() {
         when:
-        int exitCode = runCommand([scriptLocation])
+        int exitCode = runCommand([scriptLocation, "--mergeMetridocConfig=false", "--embeddedDataSource"])
 
         then:
         0 == exitCode
