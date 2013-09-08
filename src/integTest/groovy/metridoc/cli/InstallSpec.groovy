@@ -49,7 +49,7 @@ class InstallSpec extends AbstractFunctionalSpec {
         simpleJobUnversioned.exists()
 
         when:
-        exitCode = runCommand(["--stacktrace", "simpleJob"])
+        exitCode = runCommand(["--stacktrace", "simpleJob", "--mergeMetridocConfig=false", "--embeddedDataSource"])
 
         then:
         0 == exitCode
