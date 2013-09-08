@@ -45,12 +45,18 @@ class MetridocMain {
             return runJob(options)
         }
         catch (Throwable ignored) {
-            if(options.stacktrace) {
+            if (options.stacktrace) {
                 throw ignored //just rethrow it
             }
             println ""
             System.err.println("ERROR: $ignored.message")
             println ""
+
+            def exitOnException = options.exitOnException
+            if (!exitOnException) {
+                throw ignored
+            }
+
             System.exit(1)
         }
     }
@@ -93,7 +99,7 @@ class MetridocMain {
                     println " --> $name (v$version)"
                 }
                 m = it.name =~ /metridoc-job-(\w+)/
-                if(m.matches()) {
+                if (m.matches()) {
                     def name = m.group(1)
                     println " --> $name"
                 }
@@ -153,7 +159,7 @@ class MetridocMain {
             throwable = badExecution
         }
         log.info "Finished running $metridocScript at ${new Date()}"
-        if(throwable) throw throwable
+        if (throwable) throw throwable
         return response
     }
 
@@ -172,7 +178,7 @@ class MetridocMain {
         String SHOW_LOG_NAME_KEY = simpleLoggerClass.SHOW_THREAD_NAME_KEY
         String SHOW_DATE_TIME_KEY = simpleLoggerClass.SHOW_DATE_TIME_KEY
 
-        if(options.logLevel) {
+        if (options.logLevel) {
             System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", options.logLevel)
         }
         else {
@@ -182,7 +188,7 @@ class MetridocMain {
 
         System.setProperty(SHOW_DATE_TIME_KEY, "true")
 
-        if(!options.logLineExt) {
+        if (!options.logLineExt) {
             System.setProperty(SHOW_THREAD_NAME_KEY, "false")
             System.setProperty(SHOW_LOG_NAME_KEY, "false")
         }
@@ -287,7 +293,7 @@ class MetridocMain {
             }
         }
 
-        if(!jobDir) {
+        if (!jobDir) {
             println ""
             println "[$jobName] is not a recognized job"
             println ""
@@ -421,13 +427,13 @@ class MetridocMain {
     void installJob(String urlOrPath) {
         def file = new File(urlOrPath)
         def index = urlOrPath.lastIndexOf("/")
-        if(file.exists()) {
+        if (file.exists()) {
             urlOrPath = file.canonicalPath
             index = urlOrPath.lastIndexOf(SystemUtils.FILE_SEPARATOR)
         }
         def fileName = urlOrPath.substring(index + 1)
         def destinationName = fileName
-        if(!fileName.startsWith(LONG_JOB_PREFIX)) {
+        if (!fileName.startsWith(LONG_JOB_PREFIX)) {
             destinationName = "$LONG_JOB_PREFIX$fileName"
         }
         def jobPathDir = new File("$jobPath")
@@ -454,7 +460,7 @@ class MetridocMain {
         }
         catch (Throwable ignored) {
             fileToInstall = new File(urlOrPath)
-            if(fileToInstall.exists() && fileToInstall.isDirectory()) {
+            if (fileToInstall.exists() && fileToInstall.isDirectory()) {
                 installDirectoryJob(fileToInstall, destination)
                 return
             }

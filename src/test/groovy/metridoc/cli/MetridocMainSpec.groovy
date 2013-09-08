@@ -16,7 +16,8 @@ class MetridocMainSpec extends Specification {
 
     void "test running a script"() {
         given:
-        def args = ["src/test/testJobs/script/simpleScript.groovy"]
+        def args = ["src/test/testJobs/script/simpleScript.groovy", "--mergeMetridocConfig=false",
+                "--embeddedDataSource"]
         def main = new MetridocMain(args: args)
 
         when:
@@ -29,7 +30,8 @@ class MetridocMainSpec extends Specification {
 
     void "test running a simple job"() {
         given:
-        def args = ["src/test/testJobs/simpleJob"]
+        def args = ["src/test/testJobs/simpleJob", "--mergeMetridocConfig=false",
+                "--embeddedDataSource", "--exitOnException=false"]
         def main = new MetridocMain(args: args)
 
         when:
