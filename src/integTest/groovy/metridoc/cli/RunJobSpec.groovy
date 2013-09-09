@@ -1,5 +1,4 @@
 package metridoc.cli
-
 /**
  * Created with IntelliJ IDEA on 8/16/13
  * @author Tommy Barker
@@ -66,5 +65,13 @@ class RunJobSpec extends AbstractFunctionalSpec {
         then:
         3 == exitCode
         output.contains("[asdasd] is not a recognized job")
+    }
+
+    void "run a simple job from a directory"() {
+        when:
+        int exitCode = runCommand(["--stacktrace", "src/test/testJobs/simpleJob", "--embeddedDataSource"])
+
+        then:
+        0 == exitCode
     }
 }

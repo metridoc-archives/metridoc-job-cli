@@ -200,6 +200,8 @@ class MetridocMain {
         if (groovyDir.exists()) {
             loader.addURL(groovyDir.toURI().toURL())
         }
+
+        loader.addURL(file.toURI().toURL())
     }
 
     @SuppressWarnings("GrMethodMayBeStatic")
@@ -427,23 +429,36 @@ class MetridocMain {
         }
         def fileName = urlOrPath.substring(index + 1)
         def destinationName = fileName
-        if(!fileName.startsWith(LONG_JOB_PREFIX)) {
-            destinationName = "$LONG_JOB_PREFIX$fileName"
+
+        if(destinationName == "master.zip") {
+            def m = urlOrPath =~ /\/metridoc-job-(\w+)\//
+            if(m.find()) {
+                destinationName = "$LONG_JOB_PREFIX${m.group(1)}"
+            }
         }
+
+        if(!destinationName.startsWith(LONG_JOB_PREFIX)) {
+            destinationName = "$LONG_JOB_PREFIX$destinationName"
+        }
+
         def jobPathDir = new File("$jobPath")
         if (!jobPathDir.exists()) {
             jobPathDir.mkdirs()
         }
 
         def m = destinationName =~ /(metridoc-job-\w+)(-v?[0-9])?/
-        if (m.lookingAt()) {
+        def destinationExists = m.lookingAt()
+        if (destinationExists) {
             jobPathDir.eachFile(FileType.DIRECTORIES) {
                 def unversionedName = m.group(1)
                 if (it.name.startsWith(unversionedName)) {
-                    println "deleting $it.name and installing $destinationName"
+                    println "upgrading $destinationName"
                     assert it.deleteDir(): "Could not delete $it"
                 }
             }
+        }
+        else {
+            println "$destinationName does not exist, installing as new job"
         }
 
         def destination = new File(jobPathDir, destinationName)
@@ -468,6 +483,10 @@ class MetridocMain {
             }
         }
 
+        if(!destinationName.endsWith(".zip")) {
+            destinationName += ".zip"
+        }
+        destination = new File(jobPathDir, destinationName)
         fileToInstall.withInputStream { inputStream ->
             destination.newOutputStream() << inputStream
         }

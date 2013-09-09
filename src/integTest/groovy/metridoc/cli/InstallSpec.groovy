@@ -44,7 +44,7 @@ class InstallSpec extends AbstractFunctionalSpec {
         exitCode = runCommand(["install", "src/test/testJobs/simpleJob"])
 
         then: "old one should be deleted, new one installed"
-        output.contains("deleting metridoc-job-simpleJob and installing")
+        output.contains("upgrading metridoc-job-simpleJob")
         0 == exitCode
         simpleJobUnversioned.exists()
 
@@ -57,6 +57,22 @@ class InstallSpec extends AbstractFunctionalSpec {
 
         cleanup:
         simpleJobUnversioned.deleteDir()
+    }
+
+    void "test installing from github"() {
+        when:
+        int exitCode = runCommand(["install", "https://github.com/metridoc/metridoc-job-illiad/archive/master.zip"])
+
+        then:
+        0 == exitCode
+
+        when:
+        exitCode = runCommand(["install", "https://github.com/metridoc/metridoc-job-illiad/archive/master.zip"])
+
+        then:
+        0 == exitCode
+        output.contains("upgrading metridoc-job-illiad")
+        new File("${System.getProperty("user.home")}/.metridoc/jobs/metridoc-job-illiad-master").exists()
     }
 
     void "test installing from the current directory"() {
