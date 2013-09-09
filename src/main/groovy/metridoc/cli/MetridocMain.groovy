@@ -6,6 +6,8 @@ import metridoc.core.tools.SimpleLogTool
 import metridoc.utils.ArchiveMethods
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang.SystemUtils
+import org.apache.tools.ant.types.Path
+import org.codehaus.groovy.ant.Groovyc
 import org.slf4j.LoggerFactory
 
 /**
@@ -197,6 +199,13 @@ class MetridocMain {
         def groovyDir = new File(file, "src/main/groovy")
         if (groovyDir.exists()) {
             loader.addURL(groovyDir.toURI().toURL())
+        }
+
+        def classesDir = new File(file, "build/classes/main")
+        println "looking for class dir"
+        if (classesDir.exists()) {
+            println "adding class dir $classesDir"
+            loader.addURL(classesDir.toURI().toURL())
         }
 
         loader.addURL(file.toURI().toURL())

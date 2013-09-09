@@ -13,7 +13,7 @@ applicationName = "mdoc"
 sourceCompatibility = "1.6"
 targetCompatibility = "1.6"
 archivesBaseName = "metridoc-job-cli"
-version = "0.1.7"
+version = "0.1.8"
 
 sourceSets {
     integTest {
@@ -44,7 +44,6 @@ project.ext {
 
 repositories {
     mavenCentral()
-    mavenLocal()
     maven {
         url "http://jcenter.bintray.com/"
     }
