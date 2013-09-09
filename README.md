@@ -27,5 +27,8 @@ hello world.
 println "hello world"
 ```
 
-assuming you stored this into a file called `Hello.groovy`, you can run `mdoc Hello.groovy`. 
+assuming you stored this into a file called `Hello.groovy`, you can run `mdoc Hello.groovy`.  For more complex examples
+please see the [recipes](https://github.com/metridoc/metridoc-job-cli/tree/master/src/recipes) section of the code.
+
+#### Jobs
 
