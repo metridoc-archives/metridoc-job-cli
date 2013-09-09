@@ -200,15 +200,6 @@ class MetridocMain {
         if (groovyDir.exists()) {
             loader.addURL(groovyDir.toURI().toURL())
         }
-
-        def classesDir = new File(file, "build/classes/main")
-        println "looking for class dir"
-        if (classesDir.exists()) {
-            println "adding class dir $classesDir"
-            loader.addURL(classesDir.toURI().toURL())
-        }
-
-        loader.addURL(file.toURI().toURL())
     }
 
     @SuppressWarnings("GrMethodMayBeStatic")
