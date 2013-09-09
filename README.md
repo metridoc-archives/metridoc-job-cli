@@ -19,3 +19,13 @@ run `mdoc` to get some basic usage information.  `mdoc` can install a job or sim
 
 ##### Scripting
 
+run `mdoc <some script>` to run a groovy script.  Not only will you have access to the groovy libraries, but also various
+other integration libraries.  This in mind, the simplest metridoc script is nothing more than a groovy script that prints
+hello world.
+
+```groovy
+println "hello world"
+```
+
+assuming you stored this into a file called `Hello.groovy`, you can run `mdoc Hello.groovy`. 
+
