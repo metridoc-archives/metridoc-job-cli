@@ -133,4 +133,17 @@ class MetridocMainSpec extends Specification {
         "bar" == System.getProperty("foo")
         System.getProperties().containsKey("fooBar")
     }
+
+    void "stacktrace should be usable anywhere"() {
+        when:
+        new MetridocMain(
+                exitOnFailure: false,
+                args:[
+                    "src/test/testJobs/script/errorScript.groovy",
+                    "--stacktrace"
+                ] as String[]).run()
+
+        then: "exception will be thrown instead of just printing it"
+        thrown(RuntimeException)
+    }
 }
