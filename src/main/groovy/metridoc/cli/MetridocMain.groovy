@@ -20,6 +20,7 @@ class MetridocMain {
     def home = System.getProperty("user.home")
     String jobPath = "$home/.metridoc/jobs"
     def libDirectories = ["$home/.groovy/lib", "$home/.grails/drivers", "$home/.metridoc/lib", "$home/.metridoc/drivers"]
+    boolean exitOnFailure = true
     String[] args
 
     public static void main(String[] args) {
@@ -47,13 +48,16 @@ class MetridocMain {
             return runJob(options)
         }
         catch (Throwable ignored) {
-            if(options.stacktrace) {
+            if(args.contains("-stacktrace") || args.contains("--stacktrace")) {
                 throw ignored //just rethrow it
             }
             println ""
             System.err.println("ERROR: $ignored.message")
             println ""
-            System.exit(1)
+
+            if (exitOnFailure) {
+                System.exit(1)
+            }
         }
     }
 
