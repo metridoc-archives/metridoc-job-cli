@@ -1,4 +1,7 @@
 package metridoc.cli
+
+import spock.lang.IgnoreRest
+
 /**
  * Created with IntelliJ IDEA on 8/16/13
  * @author Tommy Barker
@@ -73,5 +76,14 @@ class RunJobSpec extends AbstractFunctionalSpec {
 
         then:
         0 == exitCode
+    }
+
+    void "run a remote script"() {
+        when:
+        int exitCode = runCommand(["--stacktrace", "https://raw.github.com/metridoc/metridoc-job-cli/master/src/test/testJobs/script/simpleScript.groovy", "--embeddedDataSource", "--mergeMetridocConfig=false"])
+
+        then:
+        0 == exitCode
+        output.contains("simpleScript ran")
     }
 }

@@ -108,11 +108,42 @@ class MetridocMain {
         return false
     }
 
+    protected static boolean isUrl(String possibleUrl) {
+        try {
+            new URL(possibleUrl).toURI()
+            return true
+        }
+        catch (Throwable ignore) {
+            return false
+        }
+    }
+
+    def protected runRemoteScript(URL url) {
+
+    }
+
     @SuppressWarnings("GroovyAccessibility")
     def protected runJob(OptionAccessor options) {
         def arguments = options.arguments()
         def shortJobName = arguments[0]
-        def file = new File(shortJobName)
+
+        def file
+        if(isUrl(shortJobName)) {
+            def slashIndex = shortJobName.lastIndexOf("/")
+            def questionIndex = shortJobName.lastIndexOf(".groovy")
+            def fileName
+            if (questionIndex > 0) {
+                fileName = shortJobName.substring(slashIndex + 1, questionIndex)
+            }
+            else {
+                fileName = shortJobName.substring(slashIndex + 1)
+            }
+            file = File.createTempFile(fileName, ".groovy")
+            file.setText(new URL(shortJobName).text, "utf-8")
+            file.deleteOnExit()
+        }
+
+        file = file ?: new File(shortJobName)
         File metridocScript
         def loader = findHighestLevelClassLoader()
         addLibDirectories(loader)
