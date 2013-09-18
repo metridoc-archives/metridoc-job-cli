@@ -1,13 +1,9 @@
 package metridoc.cli
 
 import groovy.io.FileType
-import metridoc.core.MetridocScript
-import metridoc.core.tools.SimpleLogTool
 import metridoc.utils.ArchiveMethods
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang.SystemUtils
-import org.apache.tools.ant.types.Path
-import org.codehaus.groovy.ant.Groovyc
 import org.slf4j.LoggerFactory
 
 /**
@@ -175,7 +171,7 @@ class MetridocMain {
         }
 
         String SHOW_THREAD_NAME_KEY = simpleLoggerClass.SHOW_THREAD_NAME_KEY
-        String SHOW_LOG_NAME_KEY = simpleLoggerClass.SHOW_THREAD_NAME_KEY
+        String SHOW_LOG_NAME_KEY = simpleLoggerClass.SHOW_LOG_NAME_KEY
         String SHOW_DATE_TIME_KEY = simpleLoggerClass.SHOW_DATE_TIME_KEY
 
         if(options.logLevel) {
