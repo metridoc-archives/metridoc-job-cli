@@ -22,7 +22,14 @@ boolean windows = os.contains("indows") //ignore case
 
 String sourceDirectory
 def userDir = System.getProperty("user.dir")
-if(new File("${userDir}/gradlew").exists()) {
+def buildFile = new File("${userDir}/build.gradle")
+def buildFileIsCli = false
+
+if(buildFile.exists()) {
+    buildFileIsCli = buildFile.text.contains("metridoc-job-cli")
+}
+
+if(buildFileIsCli) {
     sourceDirectory = userDir
 }
 else {
@@ -52,8 +59,8 @@ print "Downloading Dependencies"
 
 def latch = new CountDownLatch(1)
 
-def exit
-Process process
+def exit = 0
+Process process = null
 
 Thread.start {
     try {
