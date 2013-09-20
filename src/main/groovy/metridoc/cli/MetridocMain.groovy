@@ -406,7 +406,12 @@ class MetridocMain {
         cli.D(args: 2, valueSeparator: '=', argName: 'property=value', 'sets jvm system property')
         cli.logLevel(args: 1, argName: 'level', 'sets log level (info, error, etc.)')
         cli.logLineExt("make the log line more verbose")
+        cli.lib(args:1, argName: "directory", "add a directory of jars to classpath")
         def options = cli.parse(args)
+        if(options.lib) {
+            libDirectories.add(options.lib)
+            println "INFO: adding all jar files in [$options.lib] to classpath"
+        }
         [options, cli]
     }
 
