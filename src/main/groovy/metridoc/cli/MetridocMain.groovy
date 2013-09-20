@@ -378,7 +378,7 @@ class MetridocMain {
 
     protected void checkForAndInstallDependencies(OptionAccessor options) {
         if (!dependenciesExist()) {
-            new InstallMdoc(binding: new Binding(args: args)).run()
+            new InstallMdocDependencies(binding: new Binding(args: args)).run()
         }
         else if (doInstallDeps(options)) {
             println "Dependencies have already been installed"
