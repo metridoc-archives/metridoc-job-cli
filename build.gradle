@@ -13,7 +13,7 @@ applicationName = "mdoc"
 sourceCompatibility = "1.6"
 targetCompatibility = "1.6"
 archivesBaseName = "metridoc-job-cli"
-version = "0.1.9"
+version = new File("${projectDir}/src/main/resources/MDOC_VERSION").text.trim()
 
 sourceSets {
     integTest {
@@ -71,23 +71,6 @@ dependencies {
 task uploadDist(type: metridoc.gradle.GenericBintrayUpload, dependsOn: "distZip") {
     artifactFile = distZip.archivePath
     bintrayRepo = "https://api.bintray.com/content/upennlib/metridoc-distributions/${archivesBaseName}/$version/${distZip.archiveName}"
-}
-
-task addVersion << {
-    def resourceDir = new File("$projectDir/src/main/resources")
-    if(!resourceDir.exists()) {
-        resourceDir.mkdir()
-    }
-    def versionFile = new File("$projectDir/src/main/resources/MDOC_VERSION")
-    if (versionFile.exists()) {
-        versionFile.delete()
-    }
-    versionFile.createNewFile()
-    versionFile.write(project.version, "utf-8")
-}
-
-if (!project.version.toString().endsWith("SNAPSHOT")) {
-    compileGroovy.dependsOn addVersion
 }
 
 task copyDependenciesToLib(type: Copy, dependsOn: ["installApp"]) {
