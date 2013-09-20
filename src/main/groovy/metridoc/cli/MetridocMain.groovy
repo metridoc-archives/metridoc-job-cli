@@ -392,7 +392,7 @@ class MetridocMain {
     protected List parseArgs() {
 
         def cli = new CliBuilder(
-                usage: "mdoc [<command> | <job> | help | help <job>] [job options]",
+                usage: "mdoc [global option] [<command> | <job> | help | help <job>] [job options]",
                 header: "\nGlobal Options:",
                 footer: "\nAvailable Commands:\n" +
                         " --> list-jobs                  lists all available jobs\n" +
