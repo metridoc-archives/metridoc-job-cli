@@ -1,6 +1,5 @@
 apply plugin: "groovy"
 apply plugin: "application"
-apply plugin: "metridoc"
 apply plugin: "propdeps"
 apply plugin: "propdeps-maven"
 apply plugin: 'propdeps-idea'
@@ -15,6 +14,8 @@ targetCompatibility = "1.6"
 archivesBaseName = "metridoc-job-cli"
 version = new File("${projectDir}/src/main/resources/MDOC_VERSION").text.trim()
 
+apply plugin: "metridoc"
+
 sourceSets {
     integTest {
         groovy {
@@ -28,12 +29,13 @@ sourceSets {
 
 buildscript {
     repositories {
+        mavenLocal()
         maven { url "http://dl.bintray.com/upennlib/metridoc" }
         maven { url 'http://repo.springsource.org/plugins-release' }
     }
 
     dependencies {
-        classpath 'com.github.metridoc:metridoc-gradle-plugin:0.2.7',
+        classpath 'com.github.metridoc:metridoc-gradle-plugin:0.2.9',
                 'org.springframework.build.gradle:propdeps-plugin:0.0.1'
     }
 }
