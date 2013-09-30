@@ -44,7 +44,7 @@ class MetridocMainSpec extends Specification {
 
     void "test running a complex job"() {
         given:
-        def args = ["foo"]
+        def args = ["foo", "--stacktrace"]
         def main = new MetridocMain(args: args, jobPath: "src/test/testJobs/complexJob")
 
         when:
