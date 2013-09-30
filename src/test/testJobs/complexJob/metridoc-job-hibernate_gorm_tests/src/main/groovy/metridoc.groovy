@@ -1,16 +1,15 @@
-import metridoc.core.MetridocScript
-import metridoc.core.tools.HibernateTool
+import metridoc.core.services.HibernateService
+import metridoc.core.services.ConfigService
 
 /*
     This test assumes that mdoc is run with -localMysql and -mergeMetridocConfig=false command
     see HibernateDataSourceSpec
  */
-use(MetridocScript) {
-    def tool = includeTool(HibernateTool)
-    println config
-    assert tool.localMysql : "localMysql should be true"
-    assert !tool.mergeMetridocConfig : "we should not be merging the metridoc config"
-    assert config.dataSource.url == "jdbc:mysql://localhost:3306/test"
-}
+includeService(ConfigService)
+def tool = includeService(HibernateService)
+assert tool.localMysql: "localMysql should be true"
+assert !tool.mergeMetridocConfig: "we should not be merging the metridoc config"
+assert config.dataSource.url == "jdbc:mysql://localhost:3306/test"
+
 
 

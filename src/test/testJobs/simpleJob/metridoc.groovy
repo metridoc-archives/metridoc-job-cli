@@ -1,14 +1,14 @@
 import foo.bar.Foo
 import grails.persistence.Entity
-import metridoc.core.MetridocScript
 import metridoc.tool.gorm.GormTool
+import metridoc.core.services.ParseArgsService
 
 println "foo ran"
 new Foo()
 
-use(MetridocScript) {
-    includeTool(GormTool).enableGormFor(Bar)
-}
+includeService(ParseArgsService)
+includeService(GormTool).enableFor(Bar)
+
 
 Bar.list()
 
