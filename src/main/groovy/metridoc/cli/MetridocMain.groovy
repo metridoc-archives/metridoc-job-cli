@@ -170,6 +170,10 @@ class MetridocMain {
             binding.args = jobArgs
         }
 
+        if(options.stacktrace) {
+            binding.stacktrace = true
+        }
+
         assert metridocScript && metridocScript.exists(): "root script does not exist"
         def thread = Thread.currentThread()
         setupLogging(options)
