@@ -165,10 +165,14 @@ class MetridocMain {
 
         binding.args = [] as String[]
         //first arg is the job name
-        if (arguments.size() > 1) {
-            def jobArgs = arguments[1..arguments.size() - 1] as String[]
-            binding.args = jobArgs
-        }
+        setupLogging(options)
+        def log = LoggerFactory.getLogger(this.getClass())
+        log.debug "parsing arguments $arguments to be used with job $shortJobName"
+        def argsList = args as List
+        def index = argsList.indexOf(arguments[0])
+        def jobArgsList = argsList[(index + 1)..<argsList.size()]
+        log.debug "arguments used in job $shortJobName after removing job name are $jobArgsList"
+        binding.args = jobArgsList as String[]
 
         if(options.stacktrace) {
             binding.stacktrace = true
@@ -176,10 +180,9 @@ class MetridocMain {
 
         assert metridocScript && metridocScript.exists(): "root script does not exist"
         def thread = Thread.currentThread()
-        setupLogging(options)
+
         def shell = new GroovyShell(thread.contextClassLoader, binding)
         thread.contextClassLoader = shell.classLoader
-        def log = LoggerFactory.getLogger(this.getClass())
         log.info "Running $metridocScript at ${new Date()}"
         def response = null
         def throwable
