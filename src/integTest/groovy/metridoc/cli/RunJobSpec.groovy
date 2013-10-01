@@ -86,4 +86,12 @@ class RunJobSpec extends AbstractFunctionalSpec {
         0 == exitCode
         output.contains("simpleScript ran")
     }
+
+    void "test job with global properties"() {
+        when:
+        int exitCode = runCommand(["-logLevel", "debug", "src/test/testJobs/script/injectionWithGlobalProps.groovy", "-bar=foo", "-foo", "-stacktrace"])
+
+        then:
+        0 == exitCode
+    }
 }
