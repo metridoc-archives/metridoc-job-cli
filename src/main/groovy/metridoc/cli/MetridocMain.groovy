@@ -2,6 +2,7 @@ package metridoc.cli
 
 import groovy.io.FileType
 import metridoc.utils.ArchiveMethods
+import metridoc.utils.JansiPrintWriter
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang.SystemUtils
 import org.slf4j.LoggerFactory
@@ -28,7 +29,6 @@ class MetridocMain {
 
         def (OptionAccessor options, CliBuilder cli) = parseArgs()
         try {
-
             setPropertyValues(options)
 
             if (doHelp(cli, options)) return
@@ -44,7 +44,7 @@ class MetridocMain {
             return runJob(options)
         }
         catch (Throwable ignored) {
-            if(args.contains("-stacktrace") || args.contains("--stacktrace")) {
+            if (args.contains("-stacktrace") || args.contains("--stacktrace")) {
                 throw ignored //just rethrow it
             }
             println ""
@@ -95,7 +95,7 @@ class MetridocMain {
                     println " --> $name (v$version)"
                 }
                 m = it.name =~ /metridoc-job-(\w+)/
-                if(m.matches()) {
+                if (m.matches()) {
                     def name = m.group(1)
                     println " --> $name"
                 }
@@ -124,11 +124,14 @@ class MetridocMain {
 
     @SuppressWarnings("GroovyAccessibility")
     def protected runJob(OptionAccessor options) {
+        System.out = new JansiPrintWriter(System.out)
+        System.err = new JansiPrintWriter(System.err)
+
         def arguments = options.arguments()
         def shortJobName = arguments[0]
 
         def file
-        if(isUrl(shortJobName)) {
+        if (isUrl(shortJobName)) {
             def slashIndex = shortJobName.lastIndexOf("/")
             def questionIndex = shortJobName.lastIndexOf(".groovy")
             def fileName
@@ -174,7 +177,7 @@ class MetridocMain {
         log.debug "arguments used in job $shortJobName after removing job name are $jobArgsList"
         binding.args = jobArgsList as String[]
 
-        if(options.stacktrace) {
+        if (options.stacktrace) {
             binding.stacktrace = true
         }
 
@@ -193,7 +196,7 @@ class MetridocMain {
             throwable = badExecution
         }
         log.info "Finished running $metridocScript at ${new Date()}"
-        if(throwable) throw throwable
+        if (throwable) throw throwable
         return response
     }
 
@@ -211,8 +214,9 @@ class MetridocMain {
         String SHOW_THREAD_NAME_KEY = simpleLoggerClass.SHOW_THREAD_NAME_KEY
         String SHOW_LOG_NAME_KEY = simpleLoggerClass.SHOW_LOG_NAME_KEY
         String SHOW_DATE_TIME_KEY = simpleLoggerClass.SHOW_DATE_TIME_KEY
-
-        if(options.logLevel) {
+        String LOG_FILE_KEY = simpleLoggerClass.LOG_FILE_KEY
+        System.setProperty(LOG_FILE_KEY, "System.out")
+        if (options.logLevel) {
             System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", options.logLevel)
         }
         else {
@@ -222,7 +226,7 @@ class MetridocMain {
 
         System.setProperty(SHOW_DATE_TIME_KEY, "true")
 
-        if(!options.logLineExt) {
+        if (!options.logLineExt) {
             System.setProperty(SHOW_THREAD_NAME_KEY, "false")
             System.setProperty(SHOW_LOG_NAME_KEY, "false")
         }
@@ -327,7 +331,7 @@ class MetridocMain {
             }
         }
 
-        if(!jobDir) {
+        if (!jobDir) {
             println ""
             println "[$jobName] is not a recognized job"
             println ""
@@ -413,9 +417,9 @@ class MetridocMain {
         cli.D(args: 2, valueSeparator: '=', argName: 'property=value', 'sets jvm system property')
         cli.logLevel(args: 1, argName: 'level', 'sets log level (info, error, etc.)')
         cli.logLineExt("make the log line more verbose")
-        cli.lib(args:1, argName: "directory", "add a directory of jars to classpath")
+        cli.lib(args: 1, argName: "directory", "add a directory of jars to classpath")
         def options = cli.parse(args)
-        if(options.lib) {
+        if (options.lib) {
             libDirectories.add(options.lib)
             println "INFO: adding all jar files in [$options.lib] to classpath"
         }
@@ -466,21 +470,21 @@ class MetridocMain {
     void installJob(String urlOrPath) {
         def file = new File(urlOrPath)
         def index = urlOrPath.lastIndexOf("/")
-        if(file.exists()) {
+        if (file.exists()) {
             urlOrPath = file.canonicalPath
             index = urlOrPath.lastIndexOf(SystemUtils.FILE_SEPARATOR)
         }
         def fileName = urlOrPath.substring(index + 1)
         def destinationName = fileName
 
-        if(destinationName == "master.zip") {
+        if (destinationName == "master.zip") {
             def m = urlOrPath =~ /\/metridoc-job-(\w+)\//
-            if(m.find()) {
+            if (m.find()) {
                 destinationName = "$LONG_JOB_PREFIX${m.group(1)}"
             }
         }
 
-        if(!destinationName.startsWith(LONG_JOB_PREFIX)) {
+        if (!destinationName.startsWith(LONG_JOB_PREFIX)) {
             destinationName = "$LONG_JOB_PREFIX$destinationName"
         }
 
@@ -512,7 +516,7 @@ class MetridocMain {
         }
         catch (Throwable ignored) {
             fileToInstall = new File(urlOrPath)
-            if(fileToInstall.exists() && fileToInstall.isDirectory()) {
+            if (fileToInstall.exists() && fileToInstall.isDirectory()) {
                 installDirectoryJob(fileToInstall, destination)
                 return
             }
@@ -526,7 +530,7 @@ class MetridocMain {
             }
         }
 
-        if(!destinationName.endsWith(".zip")) {
+        if (!destinationName.endsWith(".zip")) {
             destinationName += ".zip"
         }
         destination = new File(jobPathDir, destinationName)
