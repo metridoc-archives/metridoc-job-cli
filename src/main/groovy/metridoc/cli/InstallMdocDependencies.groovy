@@ -6,10 +6,9 @@ import metridoc.utils.ArchiveMethods
 import java.util.concurrent.CountDownLatch
 
 
-class InstallMdocDependencies extends Script {
+class InstallMdocDependencies {
 
-    @Override
-    Object run() {
+    static void downloadDependencies (String[] args) {
         File destination = getDestination()
         Set<String> currentLibs = getCurrentLibs(destination)
 
@@ -19,7 +18,6 @@ class InstallMdocDependencies extends Script {
         def mdocHome = "${home}${slash}.metridoc"
         def os = System.getProperty("os.name")
         boolean windows = os.contains("indows") //ignore case
-        def args = binding.args
 
         String sourceDirectory
         def userDir = System.getProperty("user.dir")
@@ -31,7 +29,7 @@ class InstallMdocDependencies extends Script {
         addDependenciesToClassPath(destination, currentLibs)
     }
 
-    protected void doGrabDependencies(boolean windows, String sourceDirectory, slash, File destination, metridocVersion) {
+    protected static void doGrabDependencies(boolean windows, String sourceDirectory, slash, File destination, metridocVersion) {
         def commandPrefix = []
         if (windows) {
             commandPrefix.addAll(["cmd.exe", "/C"])
