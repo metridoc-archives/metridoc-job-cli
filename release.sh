@@ -36,7 +36,7 @@ echo ""
 echo "Testing the application before releasing"
 echo ""
 
-systemCall "./gradlew test"
+systemCall "./gradlew test integTests"
 #releases to github
 PROJECT_VERSION=`cat VERSION`
 
