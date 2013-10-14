@@ -8,7 +8,6 @@ import metridoc.core.services.ConfigService
 includeService(ConfigService)
 def tool = includeService(HibernateService)
 assert tool.localMysql: "localMysql should be true"
-assert !tool.mergeMetridocConfig: "we should not be merging the metridoc config"
 assert config.dataSource.url == "jdbc:mysql://localhost:3306/test"
 
 
