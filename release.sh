@@ -61,7 +61,7 @@ echo ""
 echo "Releasing ${PROJECT_VERSION} to BinTray"
 echo ""
 
-systemCall "./gradlew uploadDist bumpVersion"
+systemCall "./gradlew uploadDist bumpVersion -Ppublish=true"
 systemCall "git add VERSION"
 systemCall "git commit -m 'committing a new version'"
 systemCall "git push origin master"
