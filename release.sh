@@ -46,7 +46,7 @@ echo ""
 
 systemCall "echo ${PROJECT_VERSION} > src/main/resources/MDOC_VERSION"
 systemCall "git add src/main/resources/MDOC_VERSION"
-systemCall "git commit -m 'committing [MDOC_VERSION]' with new version"
+systemCall "git commit -m 'committing [MDOC_VERSION] with new version'"
 systemCall "git push origin master"
 
 echo ""
