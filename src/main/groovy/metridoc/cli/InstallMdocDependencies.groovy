@@ -13,7 +13,7 @@ class InstallMdocDependencies {
         Set<String> currentLibs = getCurrentLibs(destination)
 
         def slash = System.getProperty("file.separator")
-        def metridocVersion = this.getClass().classLoader.getResourceAsStream("MDOC_VERSION").getText("utf-8")
+        def metridocVersion = Thread.currentThread().contextClassLoader.getResourceAsStream("MDOC_VERSION").getText("utf-8")
         def home = System.getProperty("user.home")
         def mdocHome = "${home}${slash}.metridoc"
         def os = System.getProperty("os.name")
