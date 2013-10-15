@@ -118,14 +118,12 @@ class MetridocMain {
         }
     }
 
-    def protected runRemoteScript(URL url) {
-
-    }
-
-    @SuppressWarnings("GroovyAccessibility")
+    @SuppressWarnings(["GroovyAccessibility", "GroovyVariableNotAssigned"])
     def protected runJob(OptionAccessor options) {
-        System.out = new JansiPrintWriter(System.out)
-        System.err = new JansiPrintWriter(System.err)
+        if (!options.plainText) {
+            System.out = new JansiPrintWriter(System.out)
+            System.err = new JansiPrintWriter(System.err)
+        }
 
         def arguments = options.arguments()
         def shortJobName = arguments[0]
@@ -155,12 +153,12 @@ class MetridocMain {
             metridocScript = file
         }
         else if (file.isDirectory()) {
-            addDirectoryResourcesToClassPath(this.class.classLoader, file)
+            addDirectoryResourcesToClassPath(this.class.classLoader as URLClassLoader, file)
             metridocScript = getRootScriptFromDirectory(file)
         }
         else {
             def jobDir = getJobDir(shortJobName)
-            addDirectoryResourcesToClassPath(this.class.classLoader, jobDir)
+            addDirectoryResourcesToClassPath(this.class.classLoader as URLClassLoader, jobDir)
             metridocScript = getRootScriptFromDirectory(jobDir, shortJobName)
         }
 
@@ -418,6 +416,7 @@ class MetridocMain {
         cli.logLevel(args: 1, argName: 'level', 'sets log level (info, error, etc.)')
         cli.logLineExt("make the log line more verbose")
         cli.lib(args: 1, argName: "directory", "add a directory of jars to classpath")
+        cli.plainText("disables ansi logging")
         def options = cli.parse(args)
         if (options.lib) {
             libDirectories.add(options.lib)
