@@ -47,3 +47,7 @@ fi
 cd "$MDOC_BIN"
 ./mdoc install-deps
 echo "$MDOC_VERSION" > "$INSTALL_DIR/mdoc/MDOC_VERSION"
+
+echo ""
+echo "if this is a first time install, please open [mdoc]"
+echo ""
