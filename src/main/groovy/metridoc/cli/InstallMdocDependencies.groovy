@@ -1,11 +1,12 @@
 package metridoc.cli
 
 import groovy.sql.Sql
+import groovy.util.logging.Slf4j
 import metridoc.utils.ArchiveMethods
 
 import java.util.concurrent.CountDownLatch
 
-
+@Slf4j
 class InstallMdocDependencies {
 
     static void downloadDependencies () {
@@ -65,7 +66,9 @@ class InstallMdocDependencies {
 
     protected static File getDestination() {
         def classpath = System.getProperty("java.class.path")
+        log.debug "extracting destination for dependencies from classpath: [$classpath]"
         def destination = new File(classpath.split(":")[0]).parentFile
+        log.debug "destination for dependencies is [$destination]"
         destination
     }
 
