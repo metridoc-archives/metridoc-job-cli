@@ -385,9 +385,9 @@ class MetridocMain {
         options.arguments().contains("install-deps")
     }
 
-    protected void checkForAndInstallDependencies(OptionAccessor options) {
+    protected static void checkForAndInstallDependencies(OptionAccessor options) {
         if (!dependenciesExist()) {
-            InstallMdocDependencies.downloadDependencies(args)
+            InstallMdocDependencies.downloadDependencies()
         }
         else if (doInstallDeps(options)) {
             println "Dependencies have already been installed"
