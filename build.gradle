@@ -78,7 +78,7 @@ task uploadDist(type: metridoc.gradle.GenericBintrayUpload, dependsOn: "distZip"
 
 task copyDependenciesToLib(type: Copy, dependsOn: ["installApp"]) {
     def destination = "$buildDir/install/$applicationName/lib"
-    if(project.hasProperty("dependenciesDestination")) {
+    if (project.hasProperty("dependenciesDestination")) {
         destination = project.dependenciesDestination
     }
     into destination
@@ -86,7 +86,7 @@ task copyDependenciesToLib(type: Copy, dependsOn: ["installApp"]) {
 }
 
 //for a single test, you can run "gradle -DintegTests.single=<test name>"
-task integTests(type: Test, dependsOn: ["copyDependenciesToLib"]) {
+task integTests(type: Test, dependsOn: "copyDependenciesToLib") {
 
     testClassesDir = sourceSets.integTest.output.classesDir
     classpath = sourceSets.integTest.runtimeClasspath
@@ -98,8 +98,42 @@ task integTests(type: Test, dependsOn: ["copyDependenciesToLib"]) {
 startScripts {
     doLast {
         File windowsScriptFile = file getWindowsScript()
-        File unixScriptFile    = file getUnixScript()
+        File unixScriptFile = file getUnixScript()
         windowsScriptFile.text = windowsScriptFile.text.replaceFirst(/CLASSPATH=[^\s]+/, 'CLASSPATH=%APP_HOME%\\\\lib\\\\*')
-        unixScriptFile.text    = unixScriptFile.text.replaceFirst(/CLASSPATH=[^\s]+/, 'CLASSPATH=\\$APP_HOME/lib/*')
+        unixScriptFile.text = unixScriptFile.text.replaceFirst(/CLASSPATH=[^\s]+/, 'CLASSPATH=\\$APP_HOME/lib/*')
     }
 }
+
+task createDependencyFile << {
+
+    def dependencyFile = new File(project.projectDir as File, "src/main/resources/DEPENDENCY_URLS")
+    def jcenterUrl = "http://jcenter.bintray.com"
+    def metridocUrl = "http://dl.bintray.com/upennlib/metridoc"
+    def mavenUrl = "http://repo1.maven.org/maven2"
+
+    dependencyFile.withPrintWriter("utf-8") { PrintWriter writer ->
+        configurations.provided.resolvedConfiguration.resolvedArtifacts.each {
+            def dep = it.resolvedDependency
+            String moduleGroup = dep.moduleGroup
+            def moduleVersion = dep.moduleVersion
+            def moduleName = dep.moduleName
+            def baseUrl = moduleName.contains("metridoc") ? metridocUrl : jcenterUrl
+            baseUrl = moduleName.contains("groovy-stream") ? mavenUrl : baseUrl
+
+            writer.println "$baseUrl/${moduleGroup.replaceAll(/\./, "/")}/$moduleName/$moduleVersion/" +
+                    "$moduleName-${moduleVersion}.jar"
+        }
+    }
+}
+
+task testDependencyFile(dependsOn: "createDependencyFile") << {
+    new File(project.projectDir as File, "src/main/resources/DEPENDENCY_URLS").eachLine("utf-8") {String line ->
+        new URL(line).openConnection().with {
+            requestMethod = "HEAD"
+            inputStream.close()
+            assert responseCode >= 200 && responseCode < 300
+        }
+    }
+}
+
+installApp.dependsOn "createDependencyFile"
