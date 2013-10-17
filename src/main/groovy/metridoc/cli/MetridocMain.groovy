@@ -35,6 +35,8 @@ class MetridocMain {
 
             if (doListJobs(options)) return
 
+            setupLogging(options)
+
             checkForAndInstallDependencies(options)
 
             if (doInstallDeps(options)) return
@@ -165,8 +167,6 @@ class MetridocMain {
         def binding = new Binding()
 
         binding.args = [] as String[]
-        //first arg is the job name
-        setupLogging(options)
         def log = LoggerFactory.getLogger(this.getClass())
         log.debug "parsing arguments $arguments to be used with job $shortJobName"
         def argsList = args as List
