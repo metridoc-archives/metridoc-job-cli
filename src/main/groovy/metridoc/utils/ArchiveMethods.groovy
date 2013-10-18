@@ -44,7 +44,13 @@ class ArchiveMethods {
 
                     def output = new FileOutputStream(file)
                     output.withStream {
-                        output << zipFile.getInputStream(entry)
+                        InputStream stream = zipFile.getInputStream(entry)
+                        try {
+                            output << stream
+                        }
+                        finally {
+                            IOUtils.closeQuietly(stream)
+                        }
                     }
                 }
                 else {

@@ -4,6 +4,7 @@ import groovy.io.FileType
 import metridoc.utils.ArchiveMethods
 import metridoc.utils.JansiPrintWriter
 import org.apache.commons.io.FileUtils
+import org.apache.commons.io.IOUtils
 import org.apache.commons.lang.SystemUtils
 import org.slf4j.LoggerFactory
 
@@ -538,7 +539,13 @@ class MetridocMain {
         }
         destination = new File(jobPathDir, destinationName)
         fileToInstall.withInputStream { inputStream ->
-            destination.newOutputStream() << inputStream
+            BufferedOutputStream outputStream = destination.newOutputStream()
+            try {
+                outputStream << inputStream
+            }
+            finally {
+                IOUtils.closeQuietly(outputStream)
+            }
         }
 
         ArchiveMethods.unzip(destination, jobPathDir)
