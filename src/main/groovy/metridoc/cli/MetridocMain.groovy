@@ -550,8 +550,24 @@ class MetridocMain {
             }
         }
 
-        filesToDelete.each {
-            it.delete()
+        def log = LoggerFactory.getLogger(MetridocMain)
+
+        if(filesToDelete) {
+            log.debug "deleting [$filesToDelete]"
+        }
+        else {
+            log.debug "there are no files to delete"
+        }
+
+        filesToDelete.each {File fileToDelete ->
+            boolean successfulDelete = fileToDelete.delete()
+            if(successfulDelete) {
+                log.debug "successfully deleted ${fileToDelete}"
+            }
+            else {
+                log.warn "could not delete [${fileToDelete}], marking it for deletion after jvm shutsdown"
+                fileToDelete.deleteOnExit()
+            }
         }
     }
 
