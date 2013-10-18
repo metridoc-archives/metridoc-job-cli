@@ -325,13 +325,11 @@ class MetridocMain {
         File jobDir = null
         File jobPath = new File(jobPath)
 
-        if(!jobPath.exists()) {
-            jobPath.mkdir()
-        }
-
-        jobPath.eachFile(FileType.DIRECTORIES) {
-            if (it.name.startsWith(fullJobName)) {
-                jobDir = it
+        if (jobPath.exists()) {
+            jobPath.eachFile(FileType.DIRECTORIES) {
+                if (it.name.startsWith(fullJobName)) {
+                    jobDir = it
+                }
             }
         }
 
