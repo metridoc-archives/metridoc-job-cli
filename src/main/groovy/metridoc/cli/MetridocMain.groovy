@@ -545,6 +545,8 @@ class MetridocMain {
             }
             finally {
                 IOUtils.closeQuietly(outputStream)
+                //required so windows can successfully delete the file
+                System.gc()
             }
         }
 
