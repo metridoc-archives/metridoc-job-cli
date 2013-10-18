@@ -49,5 +49,5 @@ cd "$MDOC_BIN"
 echo "$MDOC_VERSION" > "$INSTALL_DIR/mdoc/MDOC_VERSION"
 
 echo ""
-echo "if this is a first time install, please open [mdoc]"
+echo "if this is a first time install, please open a new terminal"
 echo ""
