@@ -16,6 +16,11 @@ version = new File("${projectDir}/VERSION").text.trim()
 
 apply plugin: "metridoc"
 
+compileGroovy {
+    sourceCompatibility = "1.7"
+    targetCompatibility = "1.7"
+}
+
 sourceSets {
     integTest {
         groovy {
