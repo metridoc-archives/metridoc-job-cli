@@ -9,17 +9,12 @@ group = "com.github.metridoc-job-cli"
 mainClassName = "metridoc.cli.MetridocMain"
 applicationName = "mdoc"
 
-sourceCompatibility = "1.6"
-targetCompatibility = "1.6"
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
 archivesBaseName = "metridoc-job-cli"
 version = new File("${projectDir}/VERSION").text.trim()
 
 apply plugin: "metridoc"
-
-compileGroovy {
-    sourceCompatibility = "1.7"
-    targetCompatibility = "1.7"
-}
 
 sourceSets {
     integTest {
