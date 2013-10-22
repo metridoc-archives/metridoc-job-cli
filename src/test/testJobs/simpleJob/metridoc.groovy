@@ -3,7 +3,7 @@ import grails.persistence.Entity
 import metridoc.tool.gorm.GormTool
 import metridoc.core.services.ParseArgsService
 
-println "foo ran"
+
 new Foo()
 
 includeService(ParseArgsService)
@@ -12,6 +12,7 @@ includeService(GormTool).enableFor(Bar)
 
 Bar.list()
 
+println "foo ran"
 return "foo ran"
 
 @Entity

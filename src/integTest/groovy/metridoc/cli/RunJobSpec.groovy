@@ -66,7 +66,7 @@ class RunJobSpec extends AbstractFunctionalSpec {
         int exitCode = runCommand(["--stacktrace", "asdasd"])
 
         then:
-        3 == exitCode
+        exitCode > 0
         output.contains("[asdasd] is not a recognized job")
     }
 
