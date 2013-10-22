@@ -6,10 +6,12 @@ import metridoc.core.services.ParseArgsService
 
 new Foo()
 
+println "including parse service"
 includeService(ParseArgsService)
+println "including gorm service"
 includeService(GormTool).enableFor(Bar)
 
-
+println "listing bar contents"
 Bar.list()
 
 println "foo ran"
