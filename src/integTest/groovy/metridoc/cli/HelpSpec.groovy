@@ -1,7 +1,4 @@
 package metridoc.cli
-
-import org.apache.commons.lang.SystemUtils
-
 /**
  * Created with IntelliJ IDEA on 8/14/13
  * @author Tommy Barker
@@ -76,8 +73,9 @@ class HelpSpec extends AbstractFunctionalSpec {
 
         then:
         0 == exitCode
-        output.startsWith(SystemUtils.LINE_SEPARATOR)
-        output.endsWith(SystemUtils.LINE_SEPARATOR)
+        String lineSeparator = System.getProperty("line.separator")
+        output.startsWith(lineSeparator)
+        output.endsWith(lineSeparator)
     }
 
     void "help on a bad job name should return a reasonable error message"() {
