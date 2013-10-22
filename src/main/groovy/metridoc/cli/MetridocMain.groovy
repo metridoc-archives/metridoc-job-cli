@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory
 class MetridocMain {
 
     public static final String LONG_JOB_PREFIX = "metridoc-job-"
-    def slash = System.getProperty("file.separator")
+    private static slash = System.getProperty("file.separator")
     def home = System.getProperty("user.home")
     String jobPath = "$home${slash}.metridoc${slash}jobs"
     def libDirectories = ["$home${slash}.groovy${slash}lib", "$home${slash}.grails${slash}drivers", "$home${slash}.metridoc${slash}lib", "$home${slash}.metridoc${slash}drivers"]
