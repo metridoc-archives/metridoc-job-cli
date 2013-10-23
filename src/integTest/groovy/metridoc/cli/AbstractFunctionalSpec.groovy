@@ -20,8 +20,10 @@ class AbstractFunctionalSpec extends Specification {
     int runCommand(List cmdList, List inputs = []) {
         resetOutput()
 
-        def mdocInstallDir = System.getProperty("user.dir") + "/build/install/mdoc"
-        mdocInstallDir = new File(mdocInstallDir)
+        def mdocExecutablePath = System.getProperty("user.dir") + "/build/install/mdoc/bin/mdoc"
+        if(System.getProperty("os.name").contains("indows")) {
+            mdocExecutablePath += ".bat"
+        }
 
         // The PATH environment is needed to find the `java` command.
         if (!env["PATH"]) {
@@ -32,7 +34,7 @@ class AbstractFunctionalSpec extends Specification {
         // the form VAR=value.
         def envp = env.collect { key, value -> key + "=" + value }
 
-        Process process = (["${mdocInstallDir}/bin/mdoc"] + cmdList).execute(envp,
+        Process process = ([mdocExecutablePath] + cmdList).execute(envp,
                 new File(baseWorkDir))
 
         if (inputs) {

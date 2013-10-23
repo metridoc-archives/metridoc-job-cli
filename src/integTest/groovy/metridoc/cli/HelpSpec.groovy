@@ -73,8 +73,9 @@ class HelpSpec extends AbstractFunctionalSpec {
 
         then:
         0 == exitCode
-        output.startsWith("\n")
-        output.endsWith("\n")
+        String lineSeparator = System.getProperty("line.separator")
+        output.startsWith(lineSeparator)
+        output.endsWith(lineSeparator)
     }
 
     void "help on a bad job name should return a reasonable error message"() {
@@ -82,7 +83,7 @@ class HelpSpec extends AbstractFunctionalSpec {
         int exitCode = runCommand(["help", "asdasd"])
 
         then:
-        3 == exitCode
+        exitCode > 0
         output.contains("[asdasd] is not a recognized job")
     }
 }

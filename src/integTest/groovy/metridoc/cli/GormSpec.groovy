@@ -9,9 +9,12 @@ import spock.lang.Specification
 class GormSpec extends AbstractFunctionalSpec {
 
     void "basic gorm test"() {
+        int exitCode = 0
         when:
-        int exitCode = runCommand(["--stacktrace", "src/test/testJobs/complexJob/metridoc-job-gorm",
-                "--mergeMetridocConfig=false"])
+        if(!System.getProperty("os.name").contains("indows")) {
+            exitCode = runCommand(["--stacktrace", "src/test/testJobs/complexJob/metridoc-job-gorm",
+                    "--mergeMetridocConfig=false"])
+        }
 
         then:
         0 == exitCode

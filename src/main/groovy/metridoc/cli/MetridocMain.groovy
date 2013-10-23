@@ -4,6 +4,7 @@ import groovy.io.FileType
 import metridoc.utils.ArchiveMethods
 import metridoc.utils.JansiPrintWriter
 import org.apache.commons.io.FileUtils
+import org.apache.commons.io.IOUtils
 import org.apache.commons.lang.SystemUtils
 import org.slf4j.LoggerFactory
 
@@ -14,9 +15,10 @@ import org.slf4j.LoggerFactory
 class MetridocMain {
 
     public static final String LONG_JOB_PREFIX = "metridoc-job-"
+    private static slash = System.getProperty("file.separator")
     def home = System.getProperty("user.home")
-    String jobPath = "$home/.metridoc/jobs"
-    def libDirectories = ["$home/.groovy/lib", "$home/.grails/drivers", "$home/.metridoc/lib", "$home/.metridoc/drivers"]
+    String jobPath = "$home${slash}.metridoc${slash}jobs"
+    def libDirectories = ["$home${slash}.groovy${slash}lib", "$home${slash}.grails${slash}drivers", "$home${slash}.metridoc${slash}lib", "$home${slash}.metridoc${slash}drivers"]
     boolean exitOnFailure = true
     String[] args
 
@@ -141,7 +143,19 @@ class MetridocMain {
             else {
                 fileName = shortJobName.substring(slashIndex + 1)
             }
-            file = File.createTempFile(fileName, ".groovy")
+
+            try {
+                file = File.createTempFile(fileName, ".groovy")
+            }
+            catch (IOException e) {
+                def tmpDir = new File("$home${slash}.metridoc${slash}tmp")
+                if(!tmpDir.exists()) {
+                    assert tmpDir.mkdirs() : "Could not create $tmpDir"
+                }
+                file = new File(tmpDir, "${fileName}.groovy")
+                file.createNewFile()
+            }
+
             file.setText(new URL(shortJobName).text, "utf-8")
             file.deleteOnExit()
         }
@@ -232,11 +246,11 @@ class MetridocMain {
 
     @SuppressWarnings(["GrMethodMayBeStatic", "GroovyAccessibility"])
     protected void addDirectoryResourcesToClassPath(URLClassLoader loader, File file) {
-        def resourceDir = new File(file, "src/main/resources")
+        def resourceDir = new File(file, "src${slash}main${slash}resources")
         if (resourceDir.exists()) {
             loader.addURL(resourceDir.toURI().toURL())
         }
-        def groovyDir = new File(file, "src/main/groovy")
+        def groovyDir = new File(file, "src${slash}main${slash}groovy")
         if (groovyDir.exists()) {
             loader.addURL(groovyDir.toURI().toURL())
         }
@@ -272,7 +286,7 @@ class MetridocMain {
             return response
         }
 
-        def groovyDir = new File(directory, "src/main/groovy")
+        def groovyDir = new File(directory, "src${slash}main${slash}groovy")
         if (groovyDir.exists()) {
             response = new File(groovyDir, fileName)
             if (response.exists()) {
@@ -280,7 +294,7 @@ class MetridocMain {
             }
         }
 
-        def resourcesDir = new File(directory, "src/main/resources")
+        def resourcesDir = new File(directory, "src${slash}main${slash}resources")
         if (resourcesDir.exists()) {
             response = new File(resourcesDir, fileName)
             if (response.exists()) {
@@ -323,9 +337,13 @@ class MetridocMain {
             fullJobName = "metridoc-job-$jobName"
         }
         File jobDir = null
-        new File(jobPath).eachFile(FileType.DIRECTORIES) {
-            if (it.name.startsWith(fullJobName)) {
-                jobDir = it
+        File jobPath = new File(jobPath)
+
+        if (jobPath.exists()) {
+            jobPath.eachFile(FileType.DIRECTORIES) {
+                if (it.name.startsWith(fullJobName)) {
+                    jobDir = it
+                }
             }
         }
 
@@ -534,7 +552,15 @@ class MetridocMain {
         }
         destination = new File(jobPathDir, destinationName)
         fileToInstall.withInputStream { inputStream ->
-            destination.newOutputStream() << inputStream
+            BufferedOutputStream outputStream = destination.newOutputStream()
+            try {
+                outputStream << inputStream
+            }
+            finally {
+                IOUtils.closeQuietly(outputStream)
+                //required so windows can successfully delete the file
+                System.gc()
+            }
         }
 
         ArchiveMethods.unzip(destination, jobPathDir)
@@ -546,8 +572,24 @@ class MetridocMain {
             }
         }
 
-        filesToDelete.each {
-            it.delete()
+        def log = LoggerFactory.getLogger(MetridocMain)
+
+        if(filesToDelete) {
+            log.debug "deleting [$filesToDelete]"
+        }
+        else {
+            log.debug "there are no files to delete"
+        }
+
+        filesToDelete.each {File fileToDelete ->
+            boolean successfulDelete = fileToDelete.delete()
+            if(successfulDelete) {
+                log.debug "successfully deleted ${fileToDelete}"
+            }
+            else {
+                log.warn "could not delete [${fileToDelete}], marking it for deletion after jvm shutsdown"
+                fileToDelete.deleteOnExit()
+            }
         }
     }
 
