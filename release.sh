@@ -26,6 +26,7 @@ echo ""
 
 systemCall "./gradlew updateDependencies"
 systemCall "git add build.gradle"
+systemCall "git add src/main/resources/DEPENDENCY_URLS"
 
 #this will fail if there is nothing to commit, let's call it directly so we can ignore failure
 git commit -m 'updating dependencies'

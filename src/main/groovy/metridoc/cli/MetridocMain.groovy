@@ -6,6 +6,7 @@ import metridoc.utils.JansiPrintWriter
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang.SystemUtils
+import org.fusesource.jansi.AnsiConsole
 import org.slf4j.LoggerFactory
 
 /**
@@ -125,6 +126,7 @@ class MetridocMain {
     @SuppressWarnings(["GroovyAccessibility", "GroovyVariableNotAssigned"])
     def protected runJob(OptionAccessor options) {
         if (!options.plainText) {
+            AnsiConsole.systemInstall()
             System.out = new JansiPrintWriter(System.out)
             System.err = new JansiPrintWriter(System.err)
         }
