@@ -82,9 +82,10 @@ class InstallMdocDependencies {
     }
 
     protected static File getDestination() {
+        String classPathSeparator = System.getProperty("os.name").contains("indows") ? ";" : ":"
         def classpath = System.getProperty("java.class.path")
         log.debug "extracting destination for dependencies from classpath: [$classpath]"
-        def destination = new File(classpath.split(":")[0]).parentFile
+        def destination = new File(classpath.split(classPathSeparator)[0]).parentFile
         log.debug "destination for dependencies is [$destination]"
         destination
     }

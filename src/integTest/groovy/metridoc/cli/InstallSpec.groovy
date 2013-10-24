@@ -66,11 +66,15 @@ class InstallSpec extends AbstractFunctionalSpec {
         simpleJobUnversioned.exists()
 
         when:
-        exitCode = runCommand(["--stacktrace", "simpleJob", "--mergeMetridocConfig=false", "--embeddedDataSource"])
+        if(!System.getProperty("os.name").contains("indows")) {
+            exitCode = runCommand(["--stacktrace", "simpleJob", "--mergeMetridocConfig=false", "--embeddedDataSource"])
+        }
 
         then:
         0 == exitCode
-        output.contains("foo ran")
+        if(!System.getProperty("os.name").contains("indows")) {
+            output.contains("foo ran")
+        }
 
         cleanup:
         simpleJobUnversioned.deleteDir()

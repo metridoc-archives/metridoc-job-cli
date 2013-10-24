@@ -3,15 +3,18 @@ import grails.persistence.Entity
 import metridoc.tool.gorm.GormTool
 import metridoc.core.services.ParseArgsService
 
-println "foo ran"
+
 new Foo()
 
+println "including parse service"
 includeService(ParseArgsService)
+println "including gorm service"
 includeService(GormTool).enableFor(Bar)
 
-
+println "listing bar contents"
 Bar.list()
 
+println "foo ran"
 return "foo ran"
 
 @Entity
